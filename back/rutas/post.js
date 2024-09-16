@@ -2,9 +2,10 @@ const express = require("express");
 const router = express.Router();
 const Todo = require("../schema/todo");
 
+// Ruta para obtener todos los todos del usuario
 router.get("/", async (req, res) => {
   try {
-    const items = await Todo.find({ idUser: req.user.id });
+    const items = await Todo.findAll({ where: { idUser: req.user.id } });
     return res.json(items);
   } catch (error) {
     console.log(error);

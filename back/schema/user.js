@@ -1,10 +1,9 @@
 const bcrypt = require("bcrypt");
-const mysql = require("mysql");
 const { generateAccessToken, generateRefreshToken } = require("../auth/sign");
 const getUserInfo = require("../lib/getUserInfo");
+const User = require("../models/User");
+const Token = require("../models/Token");
 
-// Configuración de la conexión a la base de datos MySQL
-const connection = require('./connection');
 // Función para encriptar la contraseña
 const hashPassword = async (password) => {
   return bcrypt.hash(password, 10);
@@ -12,47 +11,19 @@ const hashPassword = async (password) => {
 
 // Función para verificar si el nombre de usuario existe en la base de datos
 const usernameExists = async (username) => {
-  return new Promise((resolve, reject) => {
-    connection.query(
-      "SELECT COUNT(*) AS count FROM users WHERE username = ?",
-      [username],
-      (err, results) => {
-        if (err) {
-          reject(err);
-          return;
-        }
-        resolve(results[0].count > 0);
-      }
-    );
-  });
+  const user = await User.findOne({ where: { username } });
+  return !!user; // Devuelve true si se encuentra el usuario, false si no.
 };
 
 // Función para verificar si la contraseña es correcta
 const isCorrectPassword = async (username, password) => {
-  return new Promise((resolve, reject) => {
-    connection.query(
-      "SELECT password FROM users WHERE username = ?",
-      [username],
-      (err, results) => {
-        if (err) {
-          reject(err);
-          return;
-        }
-        if (results.length === 0) {
-          resolve(false); // Usuario no encontrado
-          return;
-        }
-        const hash = results[0].password;
-        bcrypt.compare(password, hash, (err, same) => {
-          if (err) {
-            reject(err);
-            return;
-          }
-          resolve(same);
-        });
-      }
-    );
-  });
+  const user = await User.findOne({ where: { username } });
+  if (!user) {
+    return false; // Usuario no encontrado
+  }
+
+  const hash = user.password;
+  return bcrypt.compare(password, hash);
 };
 
 // Función para crear un token de acceso
@@ -66,20 +37,8 @@ const createRefreshToken = async (username) => {
   const userInfo = await getUserInfo(username);
   const refreshToken = generateRefreshToken(userInfo);
   try {
-    await new Promise((resolve, reject) => {
-      connection.query(
-        "INSERT INTO tokens (token) VALUES (?)",
-        [refreshToken],
-        (err, results) => {
-          if (err) {
-            reject(err);
-            return;
-          }
-          console.log("Token guardado en la base de datos MySQL:", refreshToken);
-          resolve();
-        }
-      );
-    });
+    await Token.create({ token: refreshToken });
+    console.log("Token guardado en la base de datos MySQL:", refreshToken);
     return refreshToken;
   } catch (error) {
     console.error("Error al guardar el token en la base de datos MySQL:", error);
@@ -89,19 +48,8 @@ const createRefreshToken = async (username) => {
 
 // Función para verificar si un token de actualización existe en la base de datos
 const verifyRefreshToken = async (token) => {
-  return new Promise((resolve, reject) => {
-    connection.query(
-      "SELECT COUNT(*) AS count FROM tokens WHERE token = ?",
-      [token],
-      (err, results) => {
-        if (err) {
-          reject(err);
-          return;
-        }
-        resolve(results[0].count > 0);
-      }
-    );
-  });
+  const tokenEntry = await Token.findOne({ where: { token } });
+  return !!tokenEntry; // Devuelve true si se encuentra el token, false si no.
 };
 
 module.exports = {

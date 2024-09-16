@@ -1,25 +1,11 @@
-const mysql = require("mysql");
 
-// Configuración de la conexión a la base de datos MySQL
-const connection = require('./connection');
+const Token = require('../models/Token');
 
 // Función para guardar un token en la base de datos
 const saveToken = async (token) => {
   try {
-    await new Promise((resolve, reject) => {
-      connection.query(
-        "INSERT INTO tokens (token) VALUES (?)",
-        [token],
-        (err, results) => {
-          if (err) {
-            reject(err);
-            return;
-          }
-          console.log("Token guardado en la base de datos MySQL:", token);
-          resolve();
-        }
-      );
-    });
+    await Token.create({ token });
+    console.log("Token guardado en la base de datos MySQL:", token);
   } catch (error) {
     console.error("Error al guardar el token en la base de datos MySQL:", error);
     throw new Error("Error guardando el token");

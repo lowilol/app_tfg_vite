@@ -21,11 +21,42 @@ app.use("/api/refreshToken",require("./rutas/refreshToken"));
 
 
 app.get('/', (req, res) => {
-    res.send('holis');
+    res.send('pag raiz comprobando');
   });       
 
 
   
 app.listen(port, () => {
-  console.log(`Servidor escuchando en el puerto ${port}`);
+  console.log(`Servidor escuchando en el puerto  http://127.0.0.1:${port}/`);
 });
+
+
+
+
+
+
+const sequelize = require('./config/connection');
+const User = require('./models/User');
+
+(async () => {
+  try {
+    // Autenticar la conexión
+    await sequelize.authenticate();
+    console.log('Conexión exitosa.');
+
+    // Sincronizar el modelo con la base de datos
+    await sequelize.sync(); // Esto crea la tabla si no existe
+
+    // Insertar un usuario de prueba
+    const newUser = await User.create({
+      username: 'pruebaUsuario',
+      password: '123456', // Nota: en un caso real, asegúrate de encriptar las contraseñas
+      name: 'Nombre de Prueba' // Proporciona el valor para el campo 'name'
+    });
+
+    console.log('Nuevo usuario creado:', newUser);
+
+  } catch (error) {
+    console.error('Error al interactuar con la base de datos:', error);
+  }
+})()

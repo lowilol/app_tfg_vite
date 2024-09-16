@@ -22,12 +22,12 @@ export default function changerPassword() {
 
               <div>
                       <label for="NewPassword" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Nueva contraseña</label>
-                      <input type="NewPassword" name="NewPassword" id="NewPassword" placeholder="Nueva contraseña " class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required=""/>
+                      <input type="password" name="NewPassword" id="NewPassword"  class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required=""/>
                   </div>
                  
                   <div>
                       <label for="ConfirmPassword" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">confimar contraseña</label>
-                      <input type="ConfirmPassword" name="ConfirmPassword" id="ConfirmPassword" placeholder="" class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required=""/>
+                      <input type="password" name="ConfirmPassword" id="ConfirmPassword"  class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required=""/>
                   </div>
                   <div class="flex items-center justify-between">
                       <div class="flex items-start">

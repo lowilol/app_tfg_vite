@@ -12,12 +12,23 @@ export default function signup() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errorResponse, setErrorResponse] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
 
   const auth = useAuth();
   const goTo = useNavigate();
 
   async function handleSubmit(e) {
-    e.preventDefault();
+    e.preventDefault(); 
+
+
+    // Check if the passwords match
+    if (password !== confirmPassword) {
+      setErrorResponse("Las contraseñas no coinciden.");
+      return;
+    }
+
+    
+
     console.log(name, lastname , email , password);
 
     try {
@@ -56,43 +67,43 @@ export default function signup() {
  
     
   
-<body  className="bg-gray-100">
-  <div class="flex flex-col items-center justify-center px-6 py-8 mx-auto md:h-screen lg:py-0 flex justify-center items-center h-screen ">
-      <a href="#" class="flex items-center mb-6 text-2xl font-semibold text-gray-900 dark:text-white">
-          <img class=" max-w-lg" src="https://www.upm.es/sfs/Rectorado/Gabinete%20del%20Rector/Logos/UPM/Logotipo/LOGOTIPO%20color%20PNG.png" alt="logo"/> 
+<div className="bg-gray-100  bg-auto ">
+  <div className="flex flex-col items-center justify-center px-6 py-8 mx-auto md:h-fulllg:py-0 flex justify-center items-center h-full ">
+      <a href="#" className="flex items-center mb-6 text-2xl font-semibold text-gray-900 dark:text-white">
+          <img className=" max-w-lg" src="https://www.upm.es/sfs/Rectorado/Gabinete%20del%20Rector/Logos/UPM/Logotipo/LOGOTIPO%20color%20PNG.png" alt="logo"/> 
       </a>
-      <div class="w-full bg-white rounded-lg shadow dark:border md:mt-0 sm:max-w-md xl:p-0 dark:bg-gray-800 dark:border-gray-700">
-          <div class="p-6 space-y-4 md:space-y-6 sm:p-8">
-              <h1 class="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white">
+      <div className="w-full bg-white rounded-lg shadow dark:border md:mt-0 sm:max-w-md xl:p-0 dark:bg-gray-800 dark:border-gray-700">
+          <div className="p-6 space-y-4 md:space-y-6 sm:p-8">
+              <h1 className="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white">
                   Registro
                   {!!errorResponse && <div className="errorMessage">{errorResponse}</div>}
               </h1>
-              <form class="space-y-4 md:space-y-6"  onSubmit={handleSubmit} className="form">
+              <form className="space-y-4 md:space-y-6 form"  onSubmit={handleSubmit} >
                  <div>
-                      <label for="nombre" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Nombre</label>
-                      <input type="nombre" name="nombre" id="nombre" onChange={(e) => setName(e.target.value)}  value={name} class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"  required=""/>
+                      <label htmlFor="nombre" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Nombre</label>
+                      <input type="text" name="nombre" id="nombre" onChange={(e) => setName(e.target.value)}  value={name} className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"  required=""/>
                   </div>
 
                   <div>
-                      <label for="Apellidos" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Apellidos</label>
-                      <input type="Apellidos" name="Apellidos" id="Apellidos" onChange={(e) => setPassword(e.target.value)} value={lastname} class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" />
+                      <label htmlFor="Apellidos" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Apellidos</label>
+                      <input type="text" name="Apellidos" id="Apellidos" onChange={(e) => setLastname(e.target.value)} value={lastname} className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"  required="" />
                   </div>
 
                   <div>
-                      <label for="email" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"> Correo</label>
-                      <input type="email" name="email" id="email" onChange={(e) => setPassword(e.target.value)} value={email} class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="name@alumnos.upm.es ó name@.upm.es" required=""/>
+                      <label htmlFor="email" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"> Correo</label>
+                      <input type="text" name="email" id="email" onChange={(e) => setEmail(e.target.value)} value={email} className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"  required=""/>
                   </div>
                   <div>
-                      <label for="password" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">contraseña</label>
-                      <input type="password" name="password" id="password" onChange={(e) => setPassword(e.target.value)} value={password}  class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required=""/>
+                      <label htmlFor="password" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Contraseña</label>
+                      <input type="password" name="password" id="password" onChange={(e) => setPassword(e.target.value)} value={password}  className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required=""/>
                   </div>
 
                   <div>
-                      <label for="ConfirmPassword" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">confimar contraseña</label>
-                      <input type="ConfirmPassword" name="ConfirmPassword" id="ConfirmPassword" placeholder="introduzca la misma contraseña" class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required=""/>
+                      <label htmlFor="ConfirmPassword" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Confimar contraseña</label>
+                      <input type="password" name="ConfirmPassword" id="ConfirmPassword" onChange={(e) => setConfirmPassword(e.target.value)} value={confirmPassword}    className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required=""/>
                   </div>
-                  <div class="flex items-center justify-between">
-                      <div class="flex items-start">
+                  <div className="flex items-center justify-between">
+                      <div className="flex items-start">
                           
                         
                           
@@ -103,7 +114,7 @@ export default function signup() {
                       </div>
                      
                   </div>
-                  <button  type="submit" class="bg-teal-400 w-full text-white bg-primary-600 hover:bg-primary-700 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800">Sign in</button>
+                  <button  type="submit" className="bg-teal-400 w-full text-white bg-primary-600 hover:bg-primary-700 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800">Sign in</button>
                 
               </form>
           </div>
@@ -114,7 +125,7 @@ export default function signup() {
 
 
 
-</body>
+</div>
 
   );
 
