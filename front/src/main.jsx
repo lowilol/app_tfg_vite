@@ -5,6 +5,7 @@ import Signup from "./rutas/signup.jsx";
 import ChangerPassword from "./rutas/ChangerPassword.jsx";
 import Profile from "./rutas/profile.jsx";
 import Dashboard from "./rutas/dashboard.jsx";
+import RequestPasssword from "./rutas/RequestPassword.jsx";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
 import { AuthProvider } from "./auth/AuthProvider";
@@ -24,15 +25,19 @@ const router = createBrowserRouter([
   },
 
   {
-    path: "/changerPassword",
+    path: "/changerPassword/:token",
     element: <ChangerPassword />,
+  },
+  {
+    path: "/requestPassword",
+    element: <RequestPasssword />,
   },
   {
     path: "/",
     element: <ProtectedRoute />,
     children: [
       {
-        path: "/dashboard",
+        path: "/dashboard/", // Aquí se define el parámetro token en la ruta
         element: <Dashboard />,
       },
       {

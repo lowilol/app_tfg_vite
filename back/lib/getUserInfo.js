@@ -1,9 +1,14 @@
-function getUserInfo(user) {
+
+
+
+
+const getUserInfo=(user)=> {
     return {
-      username: user.username,
-      name: user.name,
-      id: user.id || user._id,
+      id: user.id,
+      email: user.email,
+      name: user.FirstName + ' ' + user.LastName,
+      rol: user.rol,
     };
   }
   
-  module.exports = getUserInfo;
+  module.exports = { getUserInfo };

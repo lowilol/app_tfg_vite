@@ -1,23 +1,118 @@
 const bcrypt = require("bcrypt");
-const { generateAccessToken, generateRefreshToken } = require("../auth/sign");
-const getUserInfo = require("../lib/getUserInfo");
+const { generateAccessToken,generateResetPasswordToken } = require("../auth/sign");
+const {getUserInfo} = require("../lib/getUserInfo");
 const User = require("../models/User");
-const Token = require("../models/Token");
+const sequelize = require('../config/connection');
 
+
+
+const Rol_ = (dominio) =>{
+   var rol = null
+  if (dominio === "@alumnos.upm.es") {
+    rol ="Alumno";
+    return rol
+  } else if(dominio === "@upm.es") {
+    rol ="Docente";  
+    return rol
+  }
+  else{ 
+    return res.status(500).json(
+    jsonResponse(500, {
+      error: "correo invalido",
+    })
+  );
+}
+
+}
+ 
+const extraerDominioCorreo = async(correo)=> {
+  // Dividir el correo en dos partes: el nombre y el dominio
+  const partesCorreo = correo.split('@');
+  
+  // Si el correo está mal formado y no tiene '@', retornamos null
+  if (partesCorreo.length !== 2) {
+    return null; // Maneja casos de correos inválidos
+  }
+  
+  // Obtener la parte del dominio
+  const dominio = '@' + partesCorreo[1];
+
+  // Retornar el dominio completo
+  return dominio;
+}
+
+const crearUsuario = async(lastname, password, name, email,rol)=>{
+
+  try {
+          
+    await sequelize.authenticate();
+    console.log('Conexión exitosa.');
+
+    
+    
+    // Sincronizar el modelo con la base de datos
+    await sequelize.sync(); // Esto crea la tabla si no existe
+    
+    const HashedPass =  await  hashPassword(password);
+    // Insertar un usuario de prueba
+   
+   
+    newUser = await User.create({
+     
+      email: email,
+      FirstName: name, 
+      LastName: lastname, 
+      rol:rol,
+      password: HashedPass, 
+    });
+    console.log("Nuevo usuario creado con ID:", newUser.id);
+    
+
+
+  } catch (error) {
+    console.error('Error al interactuar con la base de datos:', error);
+  }
+
+}
 // Función para encriptar la contraseña
 const hashPassword = async (password) => {
-  return bcrypt.hash(password, 10);
+  const saltRounds = 10;  // Número de rondas de sal, 10 es un valor recomendado
+      const hash = await bcrypt.hash(password, saltRounds);  // Genera el hash
+      return hash;
 };
 
 // Función para verificar si el nombre de usuario existe en la base de datos
-const usernameExists = async (username) => {
-  const user = await User.findOne({ where: { username } });
+const emailExists = async (email) => {
+  console.log("--"+User+"--");
+  const user = await getUserByEmail (email);
+
   return !!user; // Devuelve true si se encuentra el usuario, false si no.
 };
 
+
+// Función para verificar si el nombre de usuario existe en la base de datos
+const UserExists = async (FirstName, LastName) => {
+  console.log("--"+User+"--");
+  const userexist = await getUser(FirstName,LastName) ;
+
+
+  return !!userexist; // Devuelve true si se encuentra el usuario, false si no.
+};
+
+const getUserByEmail = async(email)=>{
+
+  return await User.findOne({ where: { email } });
+}
+
+const getUser = async(FirstName, LastName)=>{
+
+  return await User.findOne({  where: { FirstName} &&  { LastName} });
+}
+
+
 // Función para verificar si la contraseña es correcta
-const isCorrectPassword = async (username, password) => {
-  const user = await User.findOne({ where: { username } });
+const isCorrectPassword = async (email, password) => {
+  const user =await getUserByEmail (email);
   if (!user) {
     return false; // Usuario no encontrado
   }
@@ -27,35 +122,54 @@ const isCorrectPassword = async (username, password) => {
 };
 
 // Función para crear un token de acceso
-const createAccessToken = async (username) => {
-  const userInfo = await getUserInfo(username);
-  return generateAccessToken(userInfo);
+const createAccessToken = async (email) => {
+  const user = await getUserByEmail(email);
+  const userInfo = getUserInfo(user);
+  return await generateAccessToken(userInfo);
 };
 
-// Función para crear un token de actualización
-const createRefreshToken = async (username) => {
-  const userInfo = await getUserInfo(username);
-  const refreshToken = generateRefreshToken(userInfo);
+
+
+const createResetPasswordToken = async (email) => {
+  const user =  await getUserByEmail(email);
+  const userInfo = getUserInfo(user);
+  console.log(userInfo);
+  const ResetPasswordToken = await generateResetPasswordToken(userInfo);
+  return ResetPasswordToken ;
+};
+
+async function updatePassword(userId, newPassword) {
   try {
-    await Token.create({ token: refreshToken });
-    console.log("Token guardado en la base de datos MySQL:", refreshToken);
-    return refreshToken;
-  } catch (error) {
-    console.error("Error al guardar el token en la base de datos MySQL:", error);
-    throw new Error("Error creando el token");
-  }
-};
+   
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    const updatedUser = await User.update(
+      { password: hashedPassword }, 
+      { where: { id: userId } }     
+    );
 
-// Función para verificar si un token de actualización existe en la base de datos
-const verifyRefreshToken = async (token) => {
-  const tokenEntry = await Token.findOne({ where: { token } });
-  return !!tokenEntry; // Devuelve true si se encuentra el token, false si no.
-};
+    // Verifica si la actualización fue exitosa
+    if (updatedUser[0] === 0) { 
+      throw new Error('No se pudo actualizar la contraseña. Usuario no encontrado.');
+    }
+
+    return true; 
+  } catch (error) {
+    console.error('Error al actualizar la contraseña:', error);
+    throw error; 
+  }
+}
 
 module.exports = {
-  usernameExists,
+  Rol_,
+  crearUsuario,
+  extraerDominioCorreo,
+  emailExists,
+  getUserByEmail,
   isCorrectPassword,
   createAccessToken,
-  createRefreshToken,
-  verifyRefreshToken
+  createResetPasswordToken,
+  hashPassword,
+  UserExists,
+  getUser,
+  updatePassword 
 };

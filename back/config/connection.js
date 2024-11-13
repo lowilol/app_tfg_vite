@@ -9,6 +9,9 @@ const sequelize = new Sequelize(process.env.DB_NAME, process.env.DB_USER, proces
 });
 
 (async () => {
+  sequelize.sync({ lter:true })
+  .then(() => console.log("Base de datos sincronizada"))
+  .catch(err => console.error("Error al sincronizar la base de datos", err));
   try {
     await sequelize.authenticate();
     console.log('La conexión a la base de datos se ha establecido correctamente.');
@@ -16,6 +19,8 @@ const sequelize = new Sequelize(process.env.DB_NAME, process.env.DB_USER, proces
     console.error('No se pudo conectar a la base de datos:', error);
   }
 })();
+
+
 
 module.exports = sequelize;
 

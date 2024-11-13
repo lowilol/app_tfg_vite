@@ -54,19 +54,44 @@ html,
   /* 6 */
   -webkit-tap-highlight-color: transparent;
   /* 7 */
+
+
+  height: 100%;
 }
 
 /*
 1. Remove the margin in all browsers.
 2. Inherit line-height from `html` so users can set them as a class directly on the `html` element.
 */
-
+@layer base {
 body {
-  margin: 0;
+  margin: 3;
   /* 1 */
   line-height: inherit;
   /* 2 */
+  background-color: #f3f4f6;
+  min-height: 100vh;
+  height: 100%;
+  
 }
+
+}
+.login-page {
+  max-width: 560px;
+  padding: 5% 0 0; 
+  margin: auto;
+}
+
+
+
+.card-header {
+  max-width: 300px;
+  margin: 0 auto 100px;
+     margin-bottom: 0px;
+     background-color: rgba(0, 0, 0, 0.0);
+     border-bottom: 1px solid rgba(0, 0, 0, 0.125);
+     border-bottom: none;
+ }
 
 /*
 1. Add the correct height in Firefox.
@@ -1011,7 +1036,10 @@ input:checked + .toggle-bg {
 }
 
 .container {
-  width: 100%;
+  
+  z-index: 1;
+  max-width: 200px;
+  margin: 1 auto;
 }
 
 @media (min-width: 640px) {
@@ -5554,7 +5582,7 @@ input:checked + .toggle-bg {
   }
 
   .sm\:text-center {
-    text-align: center;
+    text-align: center!important;
   }
 
   .sm\:text-xs {

@@ -1,13 +1,11 @@
 
 import React, { useContext, createContext, useState, useEffect } from "react";
-import { API_URL } from "./authConstants";
-import requestNewAccessToken from "./requestNewAccessToken";
 
 const AuthContext = createContext({
   isAuthenticated: false,
-  getAccessToken: () => {},
-  setAccessTokenAndRefreshToken: (_accessToken, _refreshToken) => {},
-  getRefreshToken: () => {},
+  getAccessToken: () =>({}),
+  ObtainAccessToken: () => {},
+  setAccessToken: (_accessToken) => {},
   saveUser: (_userData) => {},
   getUser: () => ({}),
   signout: () => {},
@@ -16,96 +14,64 @@ const AuthContext = createContext({
 export function AuthProvider({ children }) {
   const [user, setUser] = useState();
   const [accessToken, setAccessToken] = useState("");
-  const [refreshToken, setRefreshToken] = useState("");
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isloading, setIsLoading] = useState(true);
 
   function getAccessToken() {
-    return accessToken;
+    
+    const cookieString = document.cookie
+    .split("; ")
+    .find((row) => row.startsWith("access_token="));
+  return cookieString ? cookieString.split("=")[1] : null;
   }
 
   function saveUser(userData) {
-    setAccessTokenAndRefreshToken(
-      userData.body.accessToken,
-      userData.body.refreshToken
-    );
-    setUser(userData.body.user);
+
+    localStorage.setItem('user', JSON.stringify(userData));
+    setUser(userData);
     setIsAuthenticated(true);
   }
 
-  function setAccessTokenAndRefreshToken(accessToken, refreshToken) {
-    console.log("setAccessTokenAndRefreshToken", accessToken, refreshToken);
-    setAccessToken(accessToken);
-    setRefreshToken(refreshToken);
-
-    localStorage.setItem("token", JSON.stringify({ refreshToken }));
-  }
-
-  function getRefreshToken() {
-    if (!!refreshToken) {
-      return refreshToken;
-    }
-    const token = localStorage.getItem("token");
-    if (token) {
-      const { refreshToken } = JSON.parse(token);
-      setRefreshToken(refreshToken);
-      return refreshToken;
-    }
-    return null;
-  }
-
-  async function getNewAccessToken(refreshToken) {
-    const token = await requestNewAccessToken(refreshToken);
-    if (token) {
-      return token;
-    }
+  function ObtainAccessToken(accessToken) {
+   
+  // Actualiza los estados locales
+  setAccessToken(accessToken);;
   }
 
   function getUser() {
     return user;
   }
 
-  function signout() {
-    localStorage.removeItem("token");
-    setAccessToken("");
-    setRefreshToken("");
-    setUser(undefined);
-    setIsAuthenticated(false);
+  const logout = () =>{
+   // Elimina el usuario de localStorage al cerrar sesión
+   sessionStorage.removeItem('user');
+   sessionStorage.removeItem('accessToken');
+   localStorage.removeItem("user");
+   setUser(null);
+   setIsAuthenticated(false);
+
   }
 
   async function checkAuth() {
     try {
-      if (!!accessToken) {
-        const userInfo = await retrieveUserInfo(accessToken);
-        setUser(userInfo);
-        setAccessToken(accessToken);
-        setIsAuthenticated(true);
-        setIsLoading(false);
-      } else {
-        const token = localStorage.getItem("token");
-        if (token) {
-          console.log("useEffect: token", token);
-          const refreshToken = JSON.parse(token).refreshToken;
-          getNewAccessToken(refreshToken)
-            .then(async (newToken) => {
-              const userInfo = await retrieveUserInfo(newToken);
-              setUser(userInfo);
-              setAccessToken(newToken);
-              setIsAuthenticated(true);
-              setIsLoading(false);
-            })
-            .catch((error) => {
-              console.log(error);
-              setIsLoading(false);
-            });
-        } else {
-          setIsLoading(false);
-        }
+      const storedUser = localStorage.getItem('user');
+      
+      const storedAccessToken = sessionStorage.getItem("accessToken");
+      console.log(storedAccessToken)
+      if (storedAccessToken) {
+         setUser(JSON.parse(storedUser));
+         setIsAuthenticated(true);
+      }else{
+        logout()
       }
     } catch (error) {
+      console.log("Error en la autenticación:", error);
+      signout(); // En caso de error, también se termina sesión
+    } finally {
       setIsLoading(false);
     }
   }
+   
 
   useEffect(() => {
     checkAuth();
@@ -116,11 +82,10 @@ export function AuthProvider({ children }) {
       value={{
         isAuthenticated,
         getAccessToken,
-        setAccessTokenAndRefreshToken,
-        getRefreshToken,
+        ObtainAccessToken,
         saveUser,
         getUser,
-        signout,
+        logout,
       }}
     >
       {isloading ? <div>Loading...</div> : children}
@@ -130,7 +95,7 @@ export function AuthProvider({ children }) {
 
 async function retrieveUserInfo(accessToken) {
   try {
-    const response = await fetch(`${API_URL}/user`, {
+    const response = await fetch("http://localhost:5000/api/user", {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -142,8 +107,12 @@ async function retrieveUserInfo(accessToken) {
       const json = await response.json();
       console.log(json);
       return json.body;
+    }else {
+      throw new Error("Error retrieving user info");
     }
-  } catch (error) {}
+  } 
+   catch (error) {console.error("Failed to retrieve user info:", error);
+    return null;}
 }
 
 export const useAuth = () => useContext(AuthContext);

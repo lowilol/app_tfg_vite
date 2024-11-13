@@ -1,28 +1,48 @@
 const express = require('express');
 const cors = require('cors');
 const app = express();
-const MySQL = require('mysql');
-
+const cookie = require("universal-cookie-express")
+const session = require('express-session');
 
 require('dotenv').config();
 
 
 const port = process.env.PORT || 5000;
 
-app.use(cors());
+
+app.use(cors({ origin: ['http://localhost:5173', 'http://127.0.0.1:5173'], credentials: true ,}));
 app.use(express.json());
+app.use(cookie());
+app.use(express.urlencoded({extended: false}));
+app.use(
+  session({
+    secret: process.env.ACCESS_TOKEN_SECRET, // Cambia esto a un secreto seguro
+    resave: false,
+    saveUninitialized: true,
+    cookie: {
+      httpOnly: true,
+      secure: false, // Cambia a true si usas HTTPS en producción
+      sameSite: 'lax', // Opcional: define 'strict' o 'none' según tus necesidades
+    },
+  })
+);
+
 
 app.use("/api/signup",require("./rutas/signup"));
 app.use("/api/login",require("./rutas/login"));
 app.use("/api/user",require("./rutas/user"));
-app.use("/api/refreshToken",require("./rutas/refreshToken"));
+
+app.use("/api/requestPasswordReset",require("./rutas/RequestChangePasswordEmail"));
+app.use("/api/resetPassword",require("./rutas/passwordChanger"));
+app.use("/api/verifyCode",require("./rutas/verifyCode"));
+app.use("/api/dashboard",require("./rutas/dashboard"));
 //app.use("/api/signout",require("./rutas/signout"));
 //app.use(/api/signup,require("./rutas/signup"));
 
 
-app.get('/', (req, res) => {
-    res.send('pag raiz comprobando');
-  });       
+
+
+   
 
 
   
@@ -33,30 +53,47 @@ app.listen(port, () => {
 
 
 
-
+/*
 
 const sequelize = require('./config/connection');
 const User = require('./models/User');
-
+const { generateAccessToken, generateRefreshToken } = require('./auth/sign');
 (async () => {
   try {
     // Autenticar la conexión
     await sequelize.authenticate();
     console.log('Conexión exitosa.');
 
+
+    
+    const Hash =  async (password) => {
+      const saltRounds = 10;  // Número de rondas de sal, 10 es un valor recomendado
+      const hash = await bcrypt.hash(password, saltRounds);  // Genera el hash
+      return hash;
+    };
     // Sincronizar el modelo con la base de datos
     await sequelize.sync(); // Esto crea la tabla si no existe
-
+    const password = '123456';
+   const  HashedPass = await Hash(password);
     // Insertar un usuario de prueba
-    const newUser = await User.create({
-      username: 'pruebaUsuario',
-      password: '123456', // Nota: en un caso real, asegúrate de encriptar las contraseñas
-      name: 'Nombre de Prueba' // Proporciona el valor para el campo 'name'
+   
+   
+    newUser = await User.create({
+     
+      email: 'preuba@gmail.com',
+      FirstName: 'Nombre de Prueba', // Proporciona el valor para el campo 'name'
+      LastName: 'Apellido de Prueba', 
+      password: HashedPass, // Nota: en un caso real, asegúrate de encriptar las contraseñas
     });
+    console.log("Nuevo usuario creado con ID:", newUser.id);
+    
 
-    console.log('Nuevo usuario creado:', newUser);
 
   } catch (error) {
     console.error('Error al interactuar con la base de datos:', error);
   }
 })()
+
+*/
+
+

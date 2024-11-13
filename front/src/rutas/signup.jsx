@@ -1,6 +1,6 @@
 import '../output.css' 
-import { Button, Card, Checkbox, Label, TextInput } from 'flowbite-react';
-
+import { Button,Alert,Modal, Label, TextInput } from 'flowbite-react';
+import { HiInformationCircle } from "react-icons/hi";
 import { useState } from "react";
 import { useAuth } from "../auth/AuthProvider";
 import { Navigate, useNavigate } from "react-router-dom";
@@ -12,47 +12,91 @@ export default function signup() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errorResponse, setErrorResponse] = useState("");
+  const [errorResponseVerification, setErrorResponseVerification] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [passwordError, setPasswordError] = useState("");
+  const [showVerificationModal, setShowVerificationModal] = useState(false);
+  const [verificationCode, setVerificationCode] = useState('');
+
 
   const auth = useAuth();
   const goTo = useNavigate();
 
   async function handleSubmit(e) {
     e.preventDefault(); 
+    setErrorResponse("");
+    const minPasswordLength = 9;
+
+    if (password.length < minPasswordLength & !!name & !!lastname & !!email ) {
+      setErrorResponse("");
+      setPasswordError(`La contraseña debe tener al menos ${minPasswordLength} caracteres.`);
+      return;
+    } else {
+      setPasswordError("");  
+    }
 
 
-    // Check if the passwords match
+  
     if (password !== confirmPassword) {
+      setPasswordError("");
       setErrorResponse("Las contraseñas no coinciden.");
       return;
     }
 
     
 
+
     console.log(name, lastname , email , password);
 
     try {
-      const response = await fetch("http://localhost:3000/api/signup", {
+      const response = await fetch("http://localhost:5000/api/signup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({  name, lastname, email , password }),
       });
+      const json = (await response.json());
+      setErrorResponse("");
       if (response.ok) {
-        const json = (await response.json());
+        setShowVerificationModal(true);  // Muestra el modal si el código fue enviado
+      } else {
+        setErrorResponse(json.body.error);
+      }
+  
+      
+      
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+
+  async function handleVerificationSubmit(e){
+    e.preventDefault();
+    try {
+      const response = await fetch("http://localhost:5000/api/verifyCode", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({  name, lastname , email , password, verificationCode }),
+      });
+      const json = (await response.json());
+      setErrorResponseVerification("");
+      if (response.ok) {
         console.log(json);
         setName("");
         setLastname("");
         setEmail("");
         setPassword("");
-        goTo("/");
+        setShowVerificationModal(false);
+        goTo("/dashboard");
       } else {
-        const json = (await response.json());
-
-        setErrorResponse(json.body.error);
+        setErrorResponseVerification(json.body.error);
       }
     } catch (error) {
       console.log(error);
     }
+
+
+    
   }
 
   if (auth.isAuthenticated) {
@@ -67,18 +111,30 @@ export default function signup() {
  
     
   
-<div className="bg-gray-100  bg-auto ">
-  <div className="flex flex-col items-center justify-center px-6 py-8 mx-auto md:h-fulllg:py-0 flex justify-center items-center h-full ">
-      <a href="#" className="flex items-center mb-6 text-2xl font-semibold text-gray-900 dark:text-white">
-          <img className=" max-w-lg" src="https://www.upm.es/sfs/Rectorado/Gabinete%20del%20Rector/Logos/UPM/Logotipo/LOGOTIPO%20color%20PNG.png" alt="logo"/> 
-      </a>
+<div  className="row container-min-width  login-page">
+<div className=" max-w-[30vw] md:max-w-[20vw] lg:max-w-[5vw] bg-white rounded-lg shadow dark:border sm:max-w-sm md:max-w-md xl:max-w-lg dark:bg-gray-800 dark:border-gray-700 transition-transform duration-300 ease-in-out">
+      
+          
+      
       <div className="w-full bg-white rounded-lg shadow dark:border md:mt-0 sm:max-w-md xl:p-0 dark:bg-gray-800 dark:border-gray-700">
+      <div className='card-header'>
+        <img className=" h-48" src="https://www.upm.es/sfs/Rectorado/Gabinete%20del%20Rector/Logos/UPM/Logotipo/LOGOTIPO%20color%20PNG.png" alt="logo"/> 
+
+        </div>
           <div className="p-6 space-y-4 md:space-y-6 sm:p-8">
-              <h1 className="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white">
-                  Registro
-                  {!!errorResponse && <div className="errorMessage">{errorResponse}</div>}
-              </h1>
+            
               <form className="space-y-4 md:space-y-6 form"  onSubmit={handleSubmit} >
+              <div>
+              {!!errorResponse && <Alert
+                color="failure"
+                icon={HiInformationCircle}
+              >
+                <span>
+                  
+                  {errorResponse}
+                </span>
+              </Alert>}
+              </div>
                  <div>
                       <label htmlFor="nombre" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Nombre</label>
                       <input type="text" name="nombre" id="nombre" onChange={(e) => setName(e.target.value)}  value={name} className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"  required=""/>
@@ -96,11 +152,13 @@ export default function signup() {
                   <div>
                       <label htmlFor="password" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Contraseña</label>
                       <input type="password" name="password" id="password" onChange={(e) => setPassword(e.target.value)} value={password}  className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required=""/>
+                      {!!passwordError && <p className="text-red-600 text-sm mt-2">{passwordError}</p>}
                   </div>
 
                   <div>
                       <label htmlFor="ConfirmPassword" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Confimar contraseña</label>
                       <input type="password" name="ConfirmPassword" id="ConfirmPassword" onChange={(e) => setConfirmPassword(e.target.value)} value={confirmPassword}    className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required=""/>
+                      
                   </div>
                   <div className="flex items-center justify-between">
                       <div className="flex items-start">
@@ -114,9 +172,49 @@ export default function signup() {
                       </div>
                      
                   </div>
-                  <button  type="submit" className="bg-teal-400 w-full text-white bg-primary-600 hover:bg-primary-700 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800">Sign in</button>
-                
+
+                  <div className=" content-center">
+                  <Button outline={true}  type="submit" className="">Sign in</Button>
+                  </div>
+                  
+                  
               </form>
+              <Modal show={showVerificationModal} onClose={() => setShowVerificationModal(false)}>
+        <Modal.Header>Verificación de Correo</Modal.Header>
+        <Modal.Body>
+          <p className="text-gray-500">
+            Te hemos enviado un código de verificación a tu correo electrónico. Por favor, ingrésalo a continuación.
+          </p>
+          <div>
+              {!!errorResponseVerification && <Alert
+                color="failure"
+                icon={HiInformationCircle}
+              >
+                <span>
+                  
+                  {errorResponseVerification}
+                </span>
+              </Alert>}
+              </div>
+          <form onSubmit={handleVerificationSubmit} className="space-y-4 mt-4">
+            <div>
+              <Label htmlFor="verificationCode" value="Código de Verificación" />
+              <TextInput
+                id="verificationCode"
+                name="code"
+                type="text"
+                placeholder="Ingresa el código de verificación"
+                value={verificationCode}
+                onChange={(e) => setVerificationCode(e.target.value)}
+                required
+              />
+            </div>
+            <Button type="submit" outline={true}>
+              Verificar
+            </Button>
+          </form>
+        </Modal.Body>
+      </Modal>
           </div>
       </div>
   </div>

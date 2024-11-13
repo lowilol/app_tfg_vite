@@ -6,7 +6,7 @@ export default function profile() {
     
     return (
       
-        <div>hola caracola </div>
+        <div>hola perfil </div>
       
     
  

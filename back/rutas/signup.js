@@ -1,49 +1,57 @@
 const express = require("express");
-const User = require("../schema/user");
 const { jsonResponse } = require("../lib/jsonResponse");
 const router = express.Router();
+const { generateVerificationCode,sendVerificationEmail} = require("../auth/verify");
+
+const { UserExists,emailExists,extraerDominioCorreo,Rol_} = require("../schema/user");
+
 
 router.post("/", async function (req, res, next) {
-  const { username, password, name } = req.body;
+  const { lastname, password, name, email} = req.body;
 
-  if (!username || !password || !name) {
-    //return next(new Error("username and password are required"));
+
+
+  if ( !lastname || !password || !name || !email) {
     return res.status(409).json(
       jsonResponse(409, {
-        error: "username and password are required",
+        error: "se requiere relenar todos lo parametros ",
       })
     );
   }
 
-  try {
-    const user = new User();
-    const userExists = await user.usernameExists(username);
+  
+  console.log("hola")
+   
+  const dominio = await extraerDominioCorreo(email);
+  let rol = Rol_(dominio)
 
-    if (userExists) {
+  console.log(rol)
+
+  try {
+    const emailEx = await emailExists(email);
+    const userEx = await UserExists(name,lastname);
+
+    if (userEx || emailEx) {
       return res.status(409).json(
         jsonResponse(409, {
-          error: "username already exists",
+          error: " ya existe el usuario",
         })
       );
-      //return next(new Error("user already exists"));
+     
     } else {
-      const user = new User({ username, password, name });
-
-      user.save();
-
-      res.json(
-        jsonResponse(200, {
-          message: "User created successfully",
-        })
-      );
+      
+      const verificationCode =   await generateVerificationCode(email);
+      console.log(verificationCode);
+        sendVerificationEmail(email, verificationCode);
+       res.status(200).json({ message: `Código enviado a ${email}` });
     }
   } catch (err) {
     return res.status(500).json(
       jsonResponse(500, {
-        error: "Error creating user",
+        error: "Error al procesar el registro.",
       })
     );
-    //return next(new Error(err.message));
+    
   }
 });
 
