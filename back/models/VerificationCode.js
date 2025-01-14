@@ -7,7 +7,7 @@ VerificationCode.init({
   email: {
     type: DataTypes.STRING,
     allowNull: false,
-    unique: true,
+    unique: false,
   },
   code: {
     type: DataTypes.STRING,

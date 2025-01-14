@@ -2,7 +2,7 @@ const { DataTypes } = require('sequelize');
 const sequelize = require('../config/connection');
 
 const User =  sequelize.define('User', {
-  id: {
+  id_user: {
     type: DataTypes.INTEGER,
     autoIncrement: true, 
     primaryKey: true,    
@@ -10,15 +10,8 @@ const User =  sequelize.define('User', {
   email: {
     type: DataTypes.STRING,
     allowNull: false,
-    unique: true,
-    validate: {
-      isEmail: true,
-      isDomainValid(value) {
-          if (!/@(alumno\.)?upm\.es$/.test(value)) {
-              throw new Error('El correo debe ser de dominio UPM');
-          }
-      }
-    }
+    validate: { isEmail: true },
+    
   },
   FirstName: {
     type: DataTypes.STRING,
@@ -40,7 +33,7 @@ const User =  sequelize.define('User', {
 }, {
   
   
-    tableName: 'users', // Nombre de la tabla en la base de datos
+    tableName: 'usuario', // Nombre de la tabla en la base de datos
     timestamps: false,  // Desactiva las columnas createdAt y updatedAt
 });
 

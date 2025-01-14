@@ -2,7 +2,8 @@ import '../output.css'
 import React, { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { Button,Alert  } from 'flowbite-react';
-import { HiInformationCircle } from "react-icons/hi";
+
+import AlertResponse  from "../componentes_react/alert"
 
 export default function changerPassword() {
   const { token } = useParams();  // Extrae el token de la URL
@@ -63,26 +64,12 @@ export default function changerPassword() {
       </div>
           <div className="p-6 space-y-4 md:space-y-6 sm:p-8">
           <div>
-              {!!success && <Alert
-                color="info"
-                icon={HiInformationCircle}
-              >
-                <span>
-                  
-                  {success}
-                </span>
-              </Alert>}
+            
+              <AlertResponse  mensage={success} color= {"info"} />
+              
               </div>
               <div>
-              {!!error && <Alert
-                color="failure"
-                icon={HiInformationCircle}
-              >
-                <span>
-                  
-                  {error}
-                </span>
-              </Alert>}
+              <AlertResponse  mensage={error} color={"failure"}/>
               </div>
 
               

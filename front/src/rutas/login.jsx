@@ -1,11 +1,10 @@
 import '../output.css'
-import { Button,Alert  } from 'flowbite-react';
+import { Button } from 'flowbite-react';
 import { Link } from 'react-router-dom';
-import { useState,useEffect } from "react";
+import { useState} from "react";
 import { useAuth} from "../auth/AuthProvider";
 import { Navigate } from "react-router-dom";
-import { HiInformationCircle } from "react-icons/hi";
-
+import AlertResponse  from "../componentes_react/alert"
 
 export default function login() {
 
@@ -15,7 +14,7 @@ export default function login() {
   const [password, setPassword] = useState("");
   const [errorResponse, setErrorResponse] = useState("");
 
-
+  const [redirect, setRedirect] = useState(null); // Para manejar la redirección
  
   
 
@@ -36,21 +35,22 @@ export default function login() {
         credentials: "same-origin", //credentials: "include",
       });
       const json = await response.json();
-      if (response.ok) {
+      if (response.ok && json.accessToken ) {
         
 
-        if (json.accessToken ) {
+       
            auth.saveUser(json);
              // Guardar datos del usuario en sessionStorage o localStorage
            sessionStorage.setItem('user',JSON.stringify(json.publicUser) );
            sessionStorage.setItem('accessToken', json.accessToken);
-           console.log(json.accessToken)
-           console.log("---------------")
            console.log(json.publicUser)
-
+           setRedirect({
+            pathname: '/dashboard',
+            state: { userRole: json.publicUser.Rol },
+          });
            
            
-        }
+        
       }
       else {
     
@@ -65,9 +65,14 @@ export default function login() {
       setErrorResponse(" Error de conexión. Inténtelo de nuevo más tarde.");
     }
   }
+
+  if (redirect) {
+    return <Navigate to={redirect.pathname} state={redirect.state} />;
+  }
+
   if (auth.isAuthenticated) {
-  
-    return <Navigate to={`/dashboard`} />;
+    return <Navigate to="/dashboard" />;
+    
   }
 
 
@@ -89,16 +94,10 @@ export default function login() {
           <form className=" space-y-4 md:space-y-6" onSubmit={handleSubmit}  >
 
             <div>
-              {!!errorResponse && <Alert
-                color="failure"
-                icon={HiInformationCircle}
-              >
-                <span>
-                  
-                  {errorResponse}
-                </span>
-              </Alert>}
+              <AlertResponse  mensage={errorResponse} color={"failure"}/>
               </div>
+
+
               <div>
               <label htmlFor="email" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Correo </label>
               <input type="text" name="email" id="email"  onChange={(e) => setEmail(e.target.value)} value={email}className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required="" />

@@ -1,7 +1,7 @@
-const { DataTypes } = require('sequelize');
+const DataTypes  = require('sequelize');
 const sequelize = require('../config/connection');
-const Usuario = require('./User');
-const Laboratorio = require('./laboratorio');
+const Alumno = require('./Alumno');
+const Turno = require('./Turno');
 
 const Reserva = sequelize.define('Reserva', {
     id_reserva: {
@@ -9,28 +9,40 @@ const Reserva = sequelize.define('Reserva', {
         primaryKey: true,
         autoIncrement: true
     },
+    id_alumno: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        references: {
+            model: Alumno,
+            key: 'id_alumno'
+        }
+    },
+    id_turno: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        references: {
+            model: Turno,
+            key: 'id_turno'
+        }
+    },
     fecha_reserva: {
-        type: DataTypes.DATEONLY,
-        allowNull: false
+        type: DataTypes.DATE,
+        allowNull: false,
+        defaultValue: DataTypes.NOW
     },
-    hora_inicio: {
-        type: DataTypes.TIME,
-        allowNull: false
-    },
-    hora_fin: {
-        type: DataTypes.TIME,
-        allowNull: false
-    },
+
     estado: {
-        type: DataTypes.ENUM('pendiente', 'confirmada', 'cancelada'),
-        allowNull: false
+        type: DataTypes.STRING,
+        allowNull: false,
+        defaultValue: "Aceptado" 
     }
 }, {
-    tableName: 'reservas'
+    tableName: 'reserva',
+    timestamps: false
 });
 
-// Relaciones
-Reserva.belongsTo(Usuario, { foreignKey: 'id_usuario' });
-Reserva.belongsTo(Laboratorio, { foreignKey: 'id_laboratorio' });
+// Relacionar Reserva con Usuario y Turno
+Reserva.belongsTo(Alumno, { foreignKey: 'id_usuario', as: 'alumno' });
+Reserva.belongsTo(Turno, { foreignKey: 'id_turno', as: 'turno' });
 
 module.exports = Reserva;

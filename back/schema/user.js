@@ -4,6 +4,9 @@ const {getUserInfo} = require("../lib/getUserInfo");
 const User = require("../models/User");
 const sequelize = require('../config/connection');
 
+const Alumno= require("../models/Alumno");
+const Profesor= require("../models/Profesor");
+
 
 
 const Rol_ = (dominio) =>{
@@ -66,7 +69,24 @@ const crearUsuario = async(lastname, password, name, email,rol)=>{
       password: HashedPass, 
     });
     console.log("Nuevo usuario creado con ID:", newUser.id);
-    
+     if (rol === "Alumno") 
+      {
+        const newAlumno = await Alumno.create({ 
+          id_alumno:newUser.id,
+          matricuala:" "
+        });
+        console.log("Nuevo Alumno creado con ID:", newAlumno.id);
+          
+      }
+
+     else if (rol === "Profesor" ) {
+      const newProfesor = await Profesor.create({ 
+        id_profesor:newUser.id,
+        departamento:" "
+      });
+
+      console.log("Nuevo Profesor creado con ID:", newProfesor.id);
+     }
 
 
   } catch (error) {

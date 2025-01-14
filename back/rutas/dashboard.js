@@ -23,8 +23,6 @@ router.get("/", async function (req, res, next) {
       return res.status(200).json({ response: 'Hola, soy Alumno' });
     } else if (userRole === "Docente") {
       return res.status(200).json({ response: 'Hola, soy Docente' });
-    } else if (userRole === "Admin") {
-      return res.status(200).json({ response: 'Hola, soy Admin' });
     } else {
       return res.status(400).json({ error: 'Rol no reconocido' });
     }

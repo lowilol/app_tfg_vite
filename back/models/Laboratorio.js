@@ -1,5 +1,5 @@
 const { DataTypes } = require('sequelize');
-const sequelize = require('../config/database');
+const sequelize = require('../config/connection');
 
 const laboratorio = sequelize.define('Laboratorio', {
     id_laboratorio: {
@@ -18,9 +18,10 @@ const laboratorio = sequelize.define('Laboratorio', {
     capacidad: {
         type: DataTypes.INTEGER,
         allowNull: false
-    }
+    },
+    
 }, {
-    tableName: 'laboratorios'
+    tableName: 'laboratorio'
 });
 
 module.exports = laboratorio;

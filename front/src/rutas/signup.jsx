@@ -1,11 +1,10 @@
 import '../output.css' 
-import { Button,Alert,Modal, Label, TextInput } from 'flowbite-react';
-import { HiInformationCircle } from "react-icons/hi";
+import { Button,Modal, Label, TextInput } from 'flowbite-react';
 import { useState } from "react";
 import { useAuth } from "../auth/AuthProvider";
 import { Navigate, useNavigate } from "react-router-dom";
 
-
+import AlertResponse  from "../componentes_react/alert"
 export default function signup() {
   const [name, setName] = useState("");
   const [lastname, setLastname] = useState("");
@@ -125,15 +124,7 @@ export default function signup() {
             
               <form className="space-y-4 md:space-y-6 form"  onSubmit={handleSubmit} >
               <div>
-              {!!errorResponse && <Alert
-                color="failure"
-                icon={HiInformationCircle}
-              >
-                <span>
-                  
-                  {errorResponse}
-                </span>
-              </Alert>}
+              <AlertResponse  mensage={errorResponse} color={"failure"}/>
               </div>
                  <div>
                       <label htmlFor="nombre" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Nombre</label>
@@ -186,15 +177,7 @@ export default function signup() {
             Te hemos enviado un código de verificación a tu correo electrónico. Por favor, ingrésalo a continuación.
           </p>
           <div>
-              {!!errorResponseVerification && <Alert
-                color="failure"
-                icon={HiInformationCircle}
-              >
-                <span>
-                  
-                  {errorResponseVerification}
-                </span>
-              </Alert>}
+              <AlertResponse  mensage={errorResponseVerification}/>
               </div>
           <form onSubmit={handleVerificationSubmit} className="space-y-4 mt-4">
             <div>

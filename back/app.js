@@ -10,7 +10,7 @@ require('dotenv').config();
 const port = process.env.PORT || 5000;
 
 
-app.use(cors({ origin: ['http://localhost:5173', 'http://127.0.0.1:5173'], credentials: true ,}));
+app.use(cors({ origin: ['http://localhost:3000', 'http://127.0.0.1:3000'], credentials: true ,}));
 app.use(express.json());
 app.use(cookie());
 app.use(express.urlencoded({extended: false}));
@@ -36,6 +36,10 @@ app.use("/api/requestPasswordReset",require("./rutas/RequestChangePasswordEmail"
 app.use("/api/resetPassword",require("./rutas/passwordChanger"));
 app.use("/api/verifyCode",require("./rutas/verifyCode"));
 app.use("/api/dashboard",require("./rutas/dashboard"));
+app.use("/api/laboratorio",require("./rutas/laboratorio"));
+app.use("/api/turno",require("./rutas/turno"));
+app.use("/api/reserva",require("./rutas/reserva"));
+app.use("/api/reserva/cancelar",require("./rutas/reserva"));
 //app.use("/api/signout",require("./rutas/signout"));
 //app.use(/api/signup,require("./rutas/signup"));
 
@@ -49,8 +53,6 @@ app.use("/api/dashboard",require("./rutas/dashboard"));
 app.listen(port, () => {
   console.log(`Servidor escuchando en el puerto  http://127.0.0.1:${port}/`);
 });
-
-
 
 
 /*

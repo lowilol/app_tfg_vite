@@ -9,7 +9,7 @@ const sequelize = new Sequelize(process.env.DB_NAME, process.env.DB_USER, proces
 });
 
 (async () => {
-  sequelize.sync({ lter:true })
+  sequelize.sync({ alter: true })
   .then(() => console.log("Base de datos sincronizada"))
   .catch(err => console.error("Error al sincronizar la base de datos", err));
   try {

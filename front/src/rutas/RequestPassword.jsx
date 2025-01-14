@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { Button,Alert  } from 'flowbite-react';
-import { HiInformationCircle } from "react-icons/hi";
+import { Button  } from 'flowbite-react';
+import AlertResponse  from "../componentes_react/alert"
 import '../output.css'
 
 
@@ -50,26 +50,10 @@ export default function RequestPasswordReset() {
               
           <form className="space-y-4 md:space-y-6 form"  onSubmit={handleSubmit} >
               <div>
-              {!!success && <Alert
-                color="info"
-                icon={HiInformationCircle}
-              >
-                <span>
-                  
-                  {success}
-                </span>
-              </Alert>}
+              <AlertResponse  mensage={success} color= {"info"} />
               </div>
               <div>
-              {!!error && <Alert
-                color="failure"
-                icon={HiInformationCircle}
-              >
-                <span>
-                  
-                  {error}
-                </span>
-              </Alert>}
+              <AlertResponse  mensage={error} color= {"failure"}/>
               </div>
 
 
