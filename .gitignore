@@ -27,3 +27,4 @@ dist-ssr
 
 # configuraciones personalizadas
 .hintrc
+.env
