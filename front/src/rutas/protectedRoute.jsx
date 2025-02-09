@@ -1,8 +1,17 @@
-import { Outlet, Navigate } from "react-router-dom";
-import { useAuth } from "../auth/AuthProvider";
+import React from 'react';
+import { Navigate, Outlet } from 'react-router-dom';
+import { useAuth } from '../auth/AuthProvider'; // Importa el hook useAuth
 
-export default function protectedRoute() {
-  const auth = useAuth();
+const ProtectedRoute = () => {
+  const { isAuthenticated } = useAuth(); // Obtén el estado de autenticación
 
-  return auth.isAuthenticated ? <Outlet /> : <Navigate to="/" />;
-}
+  if (!isAuthenticated) {
+    
+    return <Navigate to="/"  />;
+  }
+
+  
+  return <Outlet />;
+};
+
+export default ProtectedRoute;

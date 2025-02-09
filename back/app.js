@@ -3,7 +3,7 @@ const cors = require('cors');
 const app = express();
 const cookie = require("universal-cookie-express")
 const session = require('express-session');
-
+require('./rutine/TurnoMonitor');
 require('dotenv').config();
 
 
@@ -40,62 +40,20 @@ app.use("/api/laboratorio",require("./rutas/laboratorio"));
 app.use("/api/turno",require("./rutas/turno"));
 app.use("/api/reserva",require("./rutas/reserva"));
 app.use("/api/reserva/cancelar",require("./rutas/reserva"));
-//app.use("/api/signout",require("./rutas/signout"));
-//app.use(/api/signup,require("./rutas/signup"));
 
 
 
+app.use("/api/incidencia/turno",require("./rutas/incidencia_turno"))
+app.use("/api/incidencia/laboratorio",require("./rutas/incidencia_lab"))
 
-   
+app.use("/api/user",require("./rutas/user"));
+app.use("/api/verifyToken",require("./rutas/verifyToken"));
 
 
-  
 app.listen(port, () => {
   console.log(`Servidor escuchando en el puerto  http://127.0.0.1:${port}/`);
 });
 
 
-/*
-
-const sequelize = require('./config/connection');
-const User = require('./models/User');
-const { generateAccessToken, generateRefreshToken } = require('./auth/sign');
-(async () => {
-  try {
-    // Autenticar la conexión
-    await sequelize.authenticate();
-    console.log('Conexión exitosa.');
-
-
-    
-    const Hash =  async (password) => {
-      const saltRounds = 10;  // Número de rondas de sal, 10 es un valor recomendado
-      const hash = await bcrypt.hash(password, saltRounds);  // Genera el hash
-      return hash;
-    };
-    // Sincronizar el modelo con la base de datos
-    await sequelize.sync(); // Esto crea la tabla si no existe
-    const password = '123456';
-   const  HashedPass = await Hash(password);
-    // Insertar un usuario de prueba
-   
-   
-    newUser = await User.create({
-     
-      email: 'preuba@gmail.com',
-      FirstName: 'Nombre de Prueba', // Proporciona el valor para el campo 'name'
-      LastName: 'Apellido de Prueba', 
-      password: HashedPass, // Nota: en un caso real, asegúrate de encriptar las contraseñas
-    });
-    console.log("Nuevo usuario creado con ID:", newUser.id);
-    
-
-
-  } catch (error) {
-    console.error('Error al interactuar con la base de datos:', error);
-  }
-})()
-
-*/
 
 

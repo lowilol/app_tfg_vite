@@ -1,4 +1,4 @@
-const { Laboratorio, Incidencia } = require('./models');
+const { Laboratorio, Incidencia } = require('../models/');
 
 async function consultarLaboratoriosConIncidencias() {
     const laboratorios = await Laboratorio.findAll({

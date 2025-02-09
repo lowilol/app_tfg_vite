@@ -53,10 +53,10 @@ const ReservaTable = ({ reservas , handleRowClickReserva }) => {
        <tbody>
           {filteredReservas.map((reserva) => (
              <tr key={reserva.id_reserva} className="turno-row" onClick={() => handleRowClickReserva(reserva)}>
-                <td>{reserva.turno.laboratorio?.nombre_laboratorio || "No disponible"}</td>
-                <td>{formatDate(reserva.turno.fecha) || "No disponible"}</td>
-                <td>{formatHour(reserva.turno.hora_inicio) || "No disponible"}</td>
-                <td>{formatHour(reserva.turno.hora_fin) || "No disponible"}</td>
+                <td>{reserva.turno?.laboratorio?.nombre_laboratorio || "No disponible"}</td>
+                <td>{formatDate(reserva.turno?.fecha) || "No disponible"}</td>
+                <td>{formatHour(reserva.turno?.hora_inicio) || "No disponible"}</td>
+                <td>{formatHour(reserva.turno?.hora_fin) || "No disponible"}</td>
                 <td>{normalizarFecha(reserva.fecha_reserva)}</td>
 
              </tr>

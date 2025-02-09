@@ -1,13 +1,46 @@
 
 
  // Formatear hora para eliminar segundos
- export const formatHour = (hour) => hour.split(":").slice(0, 2).join(":");
+ export const formatHour = (hour) => {
+  if (!hour || typeof hour !== "string") {
+    console.warn("Hora no válida:", hour);
+    return "Hora no válida";
+  }
 
- // Formatear fecha para mostrarla como día/mes/año
+  return hour.split(":").slice(0, 2).join(":");
+};
+
+
+
+ // Formatear hora para eliminar segundos
  export const formatDate = (date) => {
+  if (!date) {
+    console.error("Fecha proporcionada no existe o es nula:", date);
+    return "Fecha no válida";
+  }
+
+  if (typeof date === "object" && date.fecha) {
+    // Extraer fecha del objeto si es necesario
+    date = date.fecha;
+  }
+
+  if (typeof date !== "string") {
+    console.error("La fecha proporcionada no es válida:", date);
+    return "Fecha no válida";
+  }
+
+  try {
     const [year, month, day] = date.split("-");
+    if (!year || !month || !day) {
+      throw new Error("Fecha incompleta");
+    }
     return `${day}/${month}/${year}`;
- };
+  } catch (error) {
+    console.error("Error al formatear la fecha:", error);
+    return "Fecha no válida";
+  }
+};
+
 
  export const normalizarFecha = (fechaRaw) => {
    

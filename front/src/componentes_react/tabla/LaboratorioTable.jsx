@@ -9,14 +9,14 @@ const LaboratorioTable = ({ Laboratorios , handleRowClickLab }) => {
   
  
   const filteredLaboratorios = Laboratorios.filter((laboratorio) => {
-    const bloqueLaboratorio = laboratorio.ubicación.toLowerCase();
-    const nombreLaboratorio = laboratorio.nombre_laboratorio.toLowerCase();
+    const bloqueLaboratorio = laboratorio.ubicacion || '';
+    const nombreLaboratorio = laboratorio.nombre_laboratorio || '';
 
-    const bloqueMatch = selectedBloque ? bloqueLaboratorio.includes(selectedBloque.toLowerCase()) : true;
-    const nombreMatch = selectedNombre ? nombreLaboratorio.includes(selectedNombre.toLowerCase()) : true;
-
+    const bloqueMatch = selectedBloque ? bloqueLaboratorio.includes(selectedBloque) : true;
+    const nombreMatch = selectedNombre ? nombreLaboratorio.includes(selectedNombre) : true;
     return bloqueMatch && nombreMatch;
   });
+  
 
   return (
       <div className="table-container">
@@ -29,6 +29,7 @@ const LaboratorioTable = ({ Laboratorios , handleRowClickLab }) => {
                   onKeyDown={(e) => {
                     if (!/^\d$/.test(e.key) && e.key !== 'Backspace') {
                       e.preventDefault();
+                      alert("Solo se permiten números de 4 dígitos.");
                     }
                     
                   }}
@@ -45,11 +46,19 @@ const LaboratorioTable = ({ Laboratorios , handleRowClickLab }) => {
                   className="filter-select"
               >
                   <option value="">Todas las ubicaciones</option>
-                    {Array.from(new Set(Laboratorios.map((lab) => lab.ubicación))).map((ubicacion, index) => (
-                        <option key={index} value={ubicacion}>
-                            {ubicacion}
-                        </option>
-                    ))}
+                    {Array.from(new Set(Laboratorios.map((lab) => lab.ubicacion))).map((ubicacion,idk) =>{
+                        const key = `${ubicacion}-${idk}`;
+                        console.log(`Dropdown key: ${key}`); 
+                        console.log("Length of Laboratorios:", Laboratorios.length);
+                        return (<React.Fragment key={ key} >
+                            <option value={ubicacion}>{ubicacion}</option>
+                            </React.Fragment>
+                    )
+
+
+
+                    } 
+                      )}
                 </select>
             </div>
 
@@ -63,9 +72,9 @@ const LaboratorioTable = ({ Laboratorios , handleRowClickLab }) => {
                 </thead>
                 <tbody>
                     {filteredLaboratorios.map((laboratorio) => (
-                        <tr key={laboratorio.id_laboratorio} className="turno-row" onClick={() => handleRowClickLab(laboratorio)}>
+                        <tr key={`${laboratorio.id_laboratorio}-${laboratorio.nombre_laboratorio}`} className="turno-row" onClick={() => handleRowClickLab(laboratorio)}>
                             <td>{laboratorio.nombre_laboratorio || "No disponible"}</td>
-                            <td>{laboratorio.ubicación || "No disponible"}</td>
+                            <td>{laboratorio.ubicacion || "No disponible"}</td>
                             <td>{laboratorio.capacidad}</td>
                         </tr>
                     ))}

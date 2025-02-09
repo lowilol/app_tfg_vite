@@ -27,7 +27,7 @@ const CrearLaboratorioModal = ({ showModalCreateLab, onClose }) => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           nombre_laboratorio: nombre,
-          ubicación: ubicacion,
+          ubicacion: ubicacion,
           capacidad: parseInt(capacidad, 10),
         }),
       });
@@ -39,7 +39,7 @@ const CrearLaboratorioModal = ({ showModalCreateLab, onClose }) => {
         setCapacidad("");
       } else {
         const errorData = await response.json();
-        setError(errorData.message || "Error al crear el laboratorio.");
+        setError(errorData.error || "Error al crear el laboratorio.");
       }
     } catch (err) {
       setError("Error de conexión al servidor.");

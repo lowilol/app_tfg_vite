@@ -59,7 +59,7 @@ const crearUsuario = async(lastname, password, name, email,rol)=>{
     const HashedPass =  await  hashPassword(password);
     // Insertar un usuario de prueba
    
-   
+   console.log(rol)
     newUser = await User.create({
      
       email: email,
@@ -72,8 +72,9 @@ const crearUsuario = async(lastname, password, name, email,rol)=>{
      if (rol === "Alumno") 
       {
         const newAlumno = await Alumno.create({ 
-          id_alumno:newUser.id,
-          matricuala:" "
+          id_alumno:newUser.id_user,
+          matricuala:null,
+          id_user:newUser.id_user
         });
         console.log("Nuevo Alumno creado con ID:", newAlumno.id);
           
@@ -82,7 +83,8 @@ const crearUsuario = async(lastname, password, name, email,rol)=>{
      else if (rol === "Profesor" ) {
       const newProfesor = await Profesor.create({ 
         id_profesor:newUser.id,
-        departamento:" "
+        departamento:null,
+        id_user:newUser.id
       });
 
       console.log("Nuevo Profesor creado con ID:", newProfesor.id);

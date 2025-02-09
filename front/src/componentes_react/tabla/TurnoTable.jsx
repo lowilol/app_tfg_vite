@@ -5,21 +5,23 @@ import { formatDate, formatHour } from "../TimeFormat/FuntionTimeFormat";
 const TurnoTable = ({ Turnos, handleRowClickTurno  }) => {
     const [selectedDate, setSelectedDate] = useState('');
     const [selectedNombre, setSelectedNombre] = useState('');
-  
     
    
 
 
 
     const filteredTurnos = Turnos.filter((turno) => {
-        const laboratorioNombre = turno.laboratorio?.nombre_laboratorio.toLowerCase() || '';
+        const laboratorioNombre = turno.laboratorio?.nombre_laboratorio || '';
         const fechaTurno = turno.fecha || '';
     
-        const nombreMatch = selectedNombre ? laboratorioNombre.includes(selectedNombre.toLowerCase()) : true;
+        const nombreMatch = selectedNombre ? laboratorioNombre.includes(selectedNombre) : true;
         const fechaMatch = selectedDate ? fechaTurno === selectedDate : true;
     
         return nombreMatch && fechaMatch;
       });
+
+
+      
   
     return (
       <div className="table-container">

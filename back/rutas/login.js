@@ -1,10 +1,8 @@
 const express = require("express");
-const User = require("../models/User");  // Importa solo el modelo de Sequelize
 const { emailExists, isCorrectPassword, createAccessToken,getUserByEmail} = require("../schema/user");  // Importa las funciones adicionales
 const { jsonResponse } = require("../lib/jsonResponse");
 const router = express.Router();
 const {getUserInfo} = require("../lib/getUserInfo");
-
 
 
 router.post("/", async function (req, res, next) {
@@ -76,14 +74,24 @@ router.post("/", async function (req, res, next) {
 
     const {password:_ , ... publicUser} = user
 
+     
+    
+   
+
     // Devolver la respuesta con la información del usuario
-    return res.status(200).json({ publicUser, accessToken });
+    return res.status(200).json({ publicUser, accessToken  });
     
   } catch (err) {
     console.log(err);
     return res.status(500).json(jsonResponse(500, { error: "Error interno del servidor" }));
   }
 });
+
+
+
+
+
+
 
 
 module.exports = router;

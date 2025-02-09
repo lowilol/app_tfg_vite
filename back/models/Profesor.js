@@ -21,6 +21,7 @@ const Profesor = sequelize.define('Profesor', {
 });
 
 // Relación: Profesor hereda de Usuario
-Profesor.belongsTo(Usuario, { foreignKey: 'id_profesor', as: 'usuario' });
+Usuario.hasOne(Profesor, { foreignKey: 'id_user', as: 'profesor' });
+Profesor.belongsTo(Usuario, { foreignKey: 'id_user', as: 'usuario' });
 
 module.exports = Profesor;

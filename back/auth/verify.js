@@ -7,10 +7,29 @@ const path = require('path');
 
 const crypto = require('crypto');
 const VerificationCode = require('../models/VerificationCode');
+const redis = require("../config/redis");
 
-async function verifyAccessToken(token) {
-  const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
-  return decoded;
+async function verifyAccessToken(req, res, next) {
+  try {
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1];
+
+    if (!req || !req.headers) {
+      return res.status(400).json({ error: 'Solicitud malformada' });
+    }
+
+    
+    if (!authHeader) {
+      return res.status(401).json({ error: 'Token no proporcionado' });
+    }
+
+    const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+    req.user = decoded;  
+    next();  
+  } catch (error) {
+    console.error('Error al verificar el token:', error);
+    return res.status(403).json({ error: 'Token inválido o expirado' });
+  }
 }
 
 
@@ -22,15 +41,8 @@ async function verifyAccessToken(token) {
 
 
 async function generateVerificationCode(email) {
-  const code = crypto.randomInt(100000, 999999).toString(); // Código de 6 dígitos
-  await sequelize.sync();
-  // Almacenar el código en la base de datos con un tiempo de expiración
-  await VerificationCode.create({
-    email,
-    code,
-    expiresAt: new Date(Date.now() + 15 * 60 * 1000), // Expira en 15 minutos
-  });
-
+  const code = crypto.randomInt(100000, 999999).toString();
+  saveVerificationCode(email,code)
   return code;
 }
 
@@ -50,30 +62,39 @@ async function sendVerificationEmail(email, verificationCode) {
 }
 
 
+
+
+
+async function saveVerificationCode(email, code) {
+  const key = `verification:${email}`;
+  await redis.set(key, code, "EX", 600); 
+  console.log("key: "+ key + "email: " + email)
+}
+
+
 async function verifyCode(email, code) {
-  
-  const verificationRecord = await VerificationCode.findOne({
-    where: { email, code },
-  });
-  console.log("pipi:" +verificationRecord )
-  if (verificationRecord === null) {
-    return false;
-  }
-
- 
-  if (verificationRecord.expiresAt < new Date()) {
-    res.status(500).json(jsonResponse(400, { error: "Código de verificación Expirado." }));
-    return false;
-  }
-  
-
-  return true;
+  const key = `verification:${email}`;
+  const storedCode = await redis.get(key);
+  console.log("verificar codigo redis: "+ storedCode + "clave: "+ key)
+  return storedCode === code;
 }
 
 
-const verifyCodeDestroy = async (email) => {
-  await VerificationCode.destroy({ where: { email } });
-
+async function verifyCodeDestroy(email) {
+  const key = `verification:${email}`;
+  await redis.del(key);
+  console.log("destruido con clave: " + key  )
 }
 
-module.exports = {verifyCodeDestroy , verifyAccessToken, verifyResetPasswordToken ,generateVerificationCode,sendVerificationEmail,verifyCode  };
+
+
+
+
+module.exports = {
+  verifyCodeDestroy,
+  verifyAccessToken,
+  verifyResetPasswordToken,
+  generateVerificationCode,
+  sendVerificationEmail,
+  verifyCode,
+  saveVerificationCode  };

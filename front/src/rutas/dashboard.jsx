@@ -10,23 +10,25 @@ import DetailsTurnoModal from "../componentes_react/DetailsTurnoModal"
 import DetailsLabModel from "../componentes_react/DetailsLabModel"
 import DetailsReservaModal from "../componentes_react/DetailsReservaModal"
 
-import { formatDate, formatHour, normalizarFecha } from "../componentes_react/TimeFormat/FuntionTimeFormat";
+import DetailIncidenciaModal from "../componentes_react/DetailsIncidenciaLabModal"
 
 import ReservaTable from "../componentes_react/tabla/ReservaTable"
 import LaboratorioTable from "../componentes_react/tabla/LaboratorioTable"
 import TurnoTable from "../componentes_react/tabla/TurnoTable"
+import IncidenciasLabTable from "../componentes_react/tabla/IncidenciasLabTable"
 
-
-export default function Dashboard( userRole ) {
-   const [message, setMessage] = useState("");
+import Perfil from "./profile"
+import { ToastContainer,toast } from "react-toastify"; 
+export default function Dashboard(  ) {
+  
    const [name, setName] = useState("");
    const [email, setEmail] = useState("");
    const [rol, setRol] = useState("");
    const [id_user,setId_user] = useState("");
    const [error, setError] = useState("");
    const { isAuthenticated, logout } = useAuth(); 
-   
-
+   const[success,setSuccess ] = useState("");
+   const[usuario,setUsuario]= useState(null)
 
    const [showModalCreateTurno, setShowModalCreateTurno] = useState(false);
    const [showModalCreateLab, setShowModalCreateLab] = useState(false);
@@ -43,10 +45,21 @@ export default function Dashboard( userRole ) {
 
    const[ErrorMensageReserva,setErrorMensageReserva] = useState("");
    const[ErrorMensageLab,setErrorMensageLab] = useState("");
-
+    
    const[MensageActTurno,setMensageActTurno] = useState("")
    
+
+   const [IncidenciasLab, setIncidenciasLab] = useState([]);
+   const [IncidenciasLabAll, setIncidenciasLabAll] = useState([]);
+
+   const [selectedIncidencia, setSelectedIncidencia] = useState(null);
    const navigate = useNavigate();
+   
+
+
+
+
+   
 
    useEffect(() => {
       if (!isAuthenticated) {
@@ -61,18 +74,23 @@ export default function Dashboard( userRole ) {
             const userData = JSON.parse(userDataRaw);
             const rol_ = userData.dataValues.rol
             const name_ =`${userData.dataValues.FirstName} ${userData.dataValues.LastName}`
-            const email_ = userData.dataValues.Email
+            const email_ = userData.dataValues.email
             const id_ = userData.dataValues.id_user
             setId_user(id_)
             setName(name_)
             setEmail(email_)
             setRol(rol_)
-            fetchDashboardMessage(accessToken);
+            if (accessToken && email_) {
+               fetchDashboardMessage(accessToken, email_); 
+            }
 
             
             console.log(name+" "+ id_user)
-            console.log(name+" "+ id_user)
+            console.log(name_+" "+ id_user)
+            console.log(email_)
+            console.log(accessToken)
             console.log(userData)
+           
          } catch (error) {
             console.error("Error al parsear user data:", error);
             setError("Error al recuperar los datos del usuario");
@@ -94,6 +112,7 @@ export default function Dashboard( userRole ) {
         const data = await response.json();
     
         if (response.ok) {
+         setSuccess("")
           console.log("Turnos del profesor obtenidos:", data);
           setMisTurnos(data); // Suponiendo que usas un estado llamado setTurnos para almacenar los turnos
         } else {
@@ -102,7 +121,7 @@ export default function Dashboard( userRole ) {
       } catch (error) {
         console.error("Error de conexión al obtener turnos del profesor:", error);
       }
-    };
+    }
 
 
 
@@ -115,20 +134,32 @@ export default function Dashboard( userRole ) {
             Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
           },
         });
-    
+        const updatedReserva = await response.json();
         if (response.ok) {
-          const updatedReserva = await response.json();
           setReservas((prevReservas) =>
             prevReservas.map((r) => (r.id_reserva === id_reserva ? { ...r, estado: "Cancelada" } : r))
           );
+
+          
           console.log("Reserva cancelada:", updatedReserva);
+          
+          setSuccess(updatedReserva.message)
+
+          console.log(success)
         } else {
           console.error("Error al cancelar la reserva");
+          setErrorMensageReserva(updatedReserva.body.error)
+          console.log(ErrorMensageReserva)
+          console.log(updatedReserva.body.error)
         }
       } catch (error) {
         console.error("Error al cancelar la reserva:", error);
       }
     };
+
+
+
+    
 
    const fetchTurnosDisponibles = async () => {
     try {
@@ -144,6 +175,7 @@ export default function Dashboard( userRole ) {
        const data = await response.json();
        console.log("Respuesta del servidor:", data);
        if (response.ok) {
+          setSuccess("")
           setTurnosDisponibles(data);
        } else {
           console.error("Error al obtener turnos:", data.error);
@@ -201,21 +233,23 @@ const fetchReservaTurno = async (id_usuario, id_turno) => {
       //const data = await response.json();
       //console.log(data)
       if (!response.ok) {
-         
+         const data = await response.json()
          if (response.status === 400) {
-            const data = await response.json()
+            setSuccess("")
             console.warn('La reserva ya existe o no se puede completar.');
-            setErrorMensageReserva(data.message)
-            console.log(data.message)
-            console.log(ErrorMensageReserva)
-         }
+            console.warn(data.error)
+            setErrorMensageReserva(data.error)
+            console.warn(data.error)
+            
+         } 
          
-        throw new Error(`Error al reservar turno: ${response.statusText}`);
+      
       }
       else{
          const data = await response.json()
          setErrorMensageReserva("")
-         
+         console.log("mensaje"+data.message)
+         setSuccess(data.message) 
         console.log('Reserva creada exitosamente:', data);
       }
 
@@ -224,6 +258,53 @@ const fetchReservaTurno = async (id_usuario, id_turno) => {
       console.error('Error de conexión o en la solicitud:', error);
    }
 }
+
+
+const handleCreateIncidenciaLab = async (id_laboratorio, incidencia , descripcion_incidencia ,id_user) => {
+   try {
+     const response = await fetch("http://localhost:5000/api/incidencia/laboratorio", {
+       method: "POST",
+       headers: { "Content-Type": "application/json" },
+       body: JSON.stringify({ id_laboratorio, incidencia,id_user,descripcion_incidencia }),
+     });
+ 
+     
+     const data = await response.json();
+     console.log(data)
+     if (!response.ok) {
+      
+       alert(data.error || "Error al registrar la incidencia.");
+     } else {
+       alert("Incidencia registrada exitosamente.");
+     }
+   } catch (error) {
+     console.error("Error al registrar la incidencia:", error);
+   }
+ };
+
+ const handleCreateIncidenciaTurno = async (id_turno, incidencia, descripcion_incidencia) => {
+   try {
+     const response = await fetch("http://localhost:5000/api/incidencia/turno", {
+       method: "POST",
+       headers: { "Content-Type": "application/json" },
+       body: JSON.stringify({ id_turno, incidencia,descripcion_incidencia}),
+     });
+ 
+     
+     const data = await response.json();
+     console.log(data)
+     if (!response.ok) {
+      
+       alert(data.error || "Error al registrar la incidencia.");
+     } else {
+       alert("Incidencia registrada exitosamente.");
+     }
+   } catch (error) {
+     console.error("Error al registrar la incidencia:", error);
+   }
+ };
+
+
 
 
 const handleReserva = async (id_turno) => {
@@ -257,8 +338,7 @@ const handleOptionClickShowReserva = (option) => {
          setTurnosDisponibles(turnosDisponibles.filter((t) => t.id_turno !== id_turno));
          setMisTurnos(MisTurnos.filter((t) => t.id_turno !== id_turno));
          console.log("Turno eliminado correctamente");
-
-         closeModalRoeTurno();
+         //closeModalRoeTurno();
          handleOptionClickMisTurno("Mis Turnos")
       } else {
          console.error("Error al eliminar el turno");
@@ -268,7 +348,7 @@ const handleOptionClickShowReserva = (option) => {
    }
 };
 
-const handleUpdateTurno = async (id_turno, updates) => {
+const handleUpdateTurno = async (id_turno, newFecha, newHoraInicio , newHoraFin) => {
    try {
       const id_profesor = id_user;
       if (!id_profesor) {
@@ -281,26 +361,39 @@ const handleUpdateTurno = async (id_turno, updates) => {
             "Content-Type": "application/json",
             Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
          },
-         body: JSON.stringify(updates),
+         body: JSON.stringify(newFecha, newHoraInicio ,newHoraFin),
       });
-
+        const data = await response.json()
       if (response.ok) {
-         const updatedTurno = await response.json();
-       
-         const updatedTurnoWithLab = {
-            ...updatedTurno,
-            laboratorio: turno.laboratorio, 
-         };
-
+         
+         setSuccess(data.message)
          setTurnosDisponibles((prev) =>
-            prev.map((t) => (t.id_turno === id_turno ? updatedTurnoWithLab : t))
-         );
+            prev.map((turno) =>
+              turno.id_turno === id_turno
+                ? {
+                    ...turno,
+                    fecha: newFecha || turno.fecha,
+                    hora_inicio: newHoraInicio || turno.hora_inicio,
+                    hora_fin: newHoraFin || turno.hora_fin,
+                  }
+                : turno
+            )
+          );
          setMisTurnos((prev) =>
-            prev.map((t) => (t.id_turno === id_turno ? updatedTurnoWithLab : t))
+            prev.map((turno) =>
+               turno.id_turno === id_turno
+                 ? {
+                     ...turno,
+                     fecha: newFecha || turno.fecha,
+                     hora_inicio: newHoraInicio || turno.hora_inicio,
+                     hora_fin: newHoraFin || turno.hora_fin,
+                   }
+                 : turno
+             )
          );
          
-         window.location.reload();
-         handleOptionClickMisTurno("Mis Turnos")
+         
+         //handleOptionClickMisTurno("Mis Turnos")
       } else {
          setMensageActTurno("Error al actualizar el turno")
       }
@@ -322,6 +415,7 @@ const fetchMostrarLab = async () => {
       const data = await response.json();
       console.log("Laboratorios obtenidos:", data);
       if (response.ok) {
+         setSuccess("")
          setLaboratorios(data);
          console.log("Laboratorios obtenidos:", Laboratorios);
          closeModalRoeTurno() 
@@ -338,7 +432,8 @@ const fetchMostrarLab = async () => {
 
 const handleDeleteLaboratorio = async (id_laboratorio) => {
    try {
-      const response = await fetch(`http://localhost:5000/api/laboratorio/${id_laboratorio}`, {
+      
+      const response = await fetch(`http://localhost:5000/api/laboratorio/${id_laboratorio}X${id_user}`, {
          method: "DELETE",
          headers: {
             "Content-Type": "application/json",
@@ -346,6 +441,7 @@ const handleDeleteLaboratorio = async (id_laboratorio) => {
          },
       });
       if (response.ok) {
+         setSuccess("Laboratorio eliminado con éxito");
          setLaboratorios(Laboratorios.filter((lab) => lab.id_laboratorio !== id_laboratorio));
          console.log("Turno eliminado correctamente");
 
@@ -358,7 +454,7 @@ const handleDeleteLaboratorio = async (id_laboratorio) => {
    }
 };
 
-const handleUpdateLaboratorio = async (id_laboratorio, updates) => {
+const handleUpdateLaboratorio = async (id_laboratorio, nuevaCapacidad) => {
    try {
       const response = await fetch(`http://localhost:5000/api/laboratorio/${id_laboratorio}`, {
          method: "PUT",
@@ -366,15 +462,25 @@ const handleUpdateLaboratorio = async (id_laboratorio, updates) => {
             "Content-Type": "application/json",
             Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
          },
-         body: JSON.stringify(updates),
+         body: JSON.stringify({ id_laboratorio:id_laboratorio,capacidad: nuevaCapacidad}),
       });
+
+       const data = response.json(); 
       if (response.ok) {
-         const updatedLaboratorio = await response.json();
+          setSuccess("")
          setLaboratorios((prev) =>
-            prev.map((lab) => (lab.id_laboratorio === id_laboratorio ? updatedLaboratorio : lab))
+            prev.map((lab) =>
+               lab.id_laboratorio === id_laboratorio
+                  ? { ...lab, capacidad: nuevaCapacidad } 
+                  : lab
+            )
          );
-         closeModalRoeLab(); 
-         window.location.reload();
+
+         setSuccess(data.message)
+         //closeModalRoeLab(); 
+        if(response.status === 404){
+           setErrorMensageLab(data.error)
+        }
 
 
          
@@ -396,6 +502,15 @@ const handleUpdateLaboratorio = async (id_laboratorio, updates) => {
        fetchTurnosDisponibles(); 
     }
  };
+
+
+
+ const handleOptionClickincidenciasLabAll = (option) => {
+   setContent(option);
+   if (option === "Incidencias laboratorio") {
+      fletchIncidenislaboratorioAll(); 
+   }
+};
 
 
  const handleOptionClickMostrarLab = (option) => {
@@ -421,27 +536,34 @@ const handleUpdateLaboratorio = async (id_laboratorio, updates) => {
 };
 
 
-   const fetchDashboardMessage = async (accessToken) => {
+   const fetchDashboardMessage = async (accessToken,email) => {
       try {
          const response = await fetch('http://localhost:5000/api/dashboard', {
-            method: 'GET',
+            method: 'POST',
             headers: {
                'Content-Type': 'application/json',
                'Authorization': `Bearer ${accessToken}`,
-            }
+            },
+            body: JSON.stringify({email})
          });
 
          const data = await response.json();
          if (response.ok) {
-            setMessage(data.response);
-         } else {
-            setError(data.error || "Error obteniendo el mensaje");
-         }
+            console.log(data.missingData)
+            setUsuario(data.publicUser)
+
+         } 
       } catch (error) {
          console.error('Error al obtener datos del dashboard:', error);
          setError("Error de conexión con el servidor");
       }
    };
+
+   useEffect(() => {
+      if (usuario) {
+         console.log("Usuario actualizado:", usuario);
+      }
+   }, [usuario]);
    
    const handleRowClickTurno = (turno) => {
     setSelectedTurno(turno);
@@ -450,17 +572,27 @@ const handleUpdateLaboratorio = async (id_laboratorio, updates) => {
 
 
  const handleRowClickLab = (Lab) => {
+   setErrorMensageLab("")
    setSelectedLaboratorio(Lab); 
 };
 
 const handleRowClickReserva= (reserva) => {
+   setErrorMensageReserva("");
+   setSuccess("")
    setSelectedReserva(reserva); 
+   
+};
+const handleRowClickIncidencia= (incidencia) => {
+   setSelectedIncidencia(incidencia); 
    
 };
 
  const closeModalRoeTurno = () => {
+   const id_profesor = id_user
   setSelectedTurno(null)
   setMensageActTurno("")
+  fetchMisTurnos(id_profesor);
+  fetchTurnosDisponibles();
   
 };
 
@@ -470,13 +602,18 @@ const closeModalRoeLab= () => {
    setErrorMensageReserva("") 
  };
 
+ const closeModalRoeIncidencia= () => {
+   setSelectedIncidencia(null)
+   setErrorMensageIncidencia("") 
+ };
+
  const closeModalRoeReserva= () => {
    setSelectedReserva(null)
    setErrorMensageReserva("")
  };
 
    const handleLogout = () => {
-      logout();
+      logout()
       navigate('/'); 
    };
    const handleOptionClickCreateTurno = (option) => {
@@ -493,11 +630,94 @@ const closeModalRoeLab= () => {
     const closeModalTurno = () => setShowModalCreateTurno(false);
     const closeModalLab = () => setShowModalCreateLab(false);
 
+ const fletchIncidenislaboratorio =  async (laboratorio) => {
+   
+      try {
+          const response = await fetch(`http://localhost:5000/api/incidencia/laboratorio/${laboratorio.id_laboratorio}`, {
+            method: 'GET',
+            headers: {
+               'Content-Type': 'application/json',
+               'Authorization': `Bearer ${sessionStorage.getItem('accessToken')}`,
+            },
+         });
+          const ResIncidencias = await response.json();
+          setIncidenciasLab( ResIncidencias );
+          console.log(IncidenciasLab)
+          //setIncidenciasLab(""); 
+        
+          
+      } catch (err) {
+          console.error('Error al obtener incidencias:', err);
+      }
+   };
+   const handleUpdateProfile = async (id_user, rol, matricula, departamento) => {
+      try {
+         const accessToken = sessionStorage.getItem("accessToken");
+   
+         const response = await fetch("http://localhost:5000/api/user/updateProfile", {
+            method: "PUT",
+            headers: {
+               "Content-Type": "application/json",
+               "Authorization": `Bearer ${accessToken}`,
+            },
+            body: JSON.stringify({ id_user, rol, matricula,departamento }),
+         });
+   
+         const data = await response.json();
+         if (response.ok) {
+            console.log("Perfil actualizado:", data.message);
+            alert(data.message); // Mostrar mensaje de éxito
+         } else {
+            console.error("Error al actualizar el perfil:", data.error);
+            alert(`Error: ${data.error}`);
+         }
+      } catch (error) {
+         console.error("Error al actualizar el perfil:", error);
+         alert("Error de conexión con el servidor.");
+      }
+   };
 
+
+
+   const fletchIncidenislaboratorioAll =  async () => {
+   
+      try {
+          const response = await fetch(`http://localhost:5000/api/incidencia/laboratorio`, {
+            method: 'GET',
+            headers: {
+               'Content-Type': 'application/json',
+               'Authorization': `Bearer ${sessionStorage.getItem('accessToken')}`,
+            },
+         });
+          const ResIncidencias = await response.json();
+          setIncidenciasLabAll( ResIncidencias );
+          console.log("tututu"+IncidenciasLabAll)
+          //setIncidenciasLab(""); 
+        
+          
+      } catch (err) {
+          console.error('Error al obtener incidencias:', err);
+      }
+   };
+
+   React.useEffect(() => {
+      if (selectedLaboratorio && selectedLaboratorio.id_laboratorio) {
+         fletchIncidenislaboratorio(selectedLaboratorio);
+         console.log(IncidenciasLab)
+      }
+   }, [selectedLaboratorio])
+
+
+
+   const handleViewProfile = () => {
+      setContent("Perfil");
+    };
+   
    
    return (
    
          <div className="dashboard-container">
+           <ToastContainer />
          {/* Header */}
          <nav className="dashboard-nav">
            <div className="nav-logo">
@@ -507,11 +727,12 @@ const closeModalRoeLab= () => {
                className="logo-img"
              />
            </div>
-           <div className="nav-actions">
-             <button className="btn-profile">
-               <i className="fas fa-user-circle"></i> {/* Ícono de perfil */}
-             </button>
-             <HoverButton onClick={handleLogout}  label="Cerrar sesión" ></HoverButton> 
+           
+            <div className="nav-actions">
+               <button className="btn-profile" onClick={handleViewProfile}>
+                  <i className="fas fa-user-gear"></i> Perfil
+               </button>
+               <HoverButton onClick={handleLogout}  label="Cerrar sesión" ></HoverButton> 
            </div>
          </nav>
    
@@ -548,8 +769,16 @@ const closeModalRoeLab= () => {
                    <HoverButton onClick={() => handleOptionClickMisTurno("Mis Turnos")} 
                    label="Mis Turnos" ></HoverButton> 
                  </li>
-                
                )}
+               {rol === "Profesor" && (
+                 <li >
+                   <HoverButton onClick={() => handleOptionClickincidenciasLabAll("Incidencias laboratorio")} 
+                   label="Incidencias laboratorio" ></HoverButton> 
+                 </li>
+               )}
+
+
+
              </ul>
              </nav>
 
@@ -591,12 +820,15 @@ const closeModalRoeLab= () => {
            {/* Main Section */}
             {/* Main Section */}
             <section className="dashboard-content">
+            
                <h2>Bienvenido, {rol} : {name}</h2>
                <div className="content-display">
                   {content === "Turnos Disponibles" && <TurnoTable Turnos={turnosDisponibles} handleRowClickTurno={handleRowClickTurno}/>}
                   {content === "Mis Turnos" && <TurnoTable Turnos={MisTurnos} handleRowClickTurno={handleRowClickTurno}/>}
                   {content === "Mostrar Laboratorios" && <LaboratorioTable Laboratorios={Laboratorios} handleRowClickLab={handleRowClickLab} />}
                   {content === "Historial de Reservas" && <ReservaTable reservas={reservas} handleRowClickReserva={handleRowClickReserva} />}
+                  {content === "Incidencias laboratorio" && <IncidenciasLabTable incidencias={IncidenciasLabAll} handleRowClickIncidencia={handleRowClickIncidencia} />}
+                  {content === "Perfil" && <Perfil usuario={usuario} onUpdate={handleUpdateProfile} />}
                   {!content && <p>Selecciona una opción del menú para empezar</p>}
                </div>
             </section>
@@ -605,7 +837,7 @@ const closeModalRoeLab= () => {
    
          {/* Footer */}
          <footer className="dashboard-footer">
-           <p>© 2024 Universidad Politécnica de Madrid</p>
+           <p>© 2025 Universidad Politécnica de Madrid</p>
          </footer>
    
          {/* Modal */}
@@ -622,17 +854,22 @@ const closeModalRoeLab= () => {
                onReserve={handleReserva}
                errorMensage ={MensageActTurno}
                ErrorMensageReserva={ErrorMensageReserva}
+               onCreateIncidencia = {handleCreateIncidenciaTurno}
+               success= {success}
             />
             
          )}
          {selectedLaboratorio && (
             <DetailsLabModel
                laboratorio={selectedLaboratorio}
+               id_user={id_user}
                onClose={closeModalRoeLab}
                onDelete={ handleDeleteLaboratorio }
                onUpdate={handleUpdateLaboratorio }
                errorMensage={ErrorMensageLab}
-               
+               onCreateIncidencia= {handleCreateIncidenciaLab }
+               Incidencias ={IncidenciasLab}
+               success ={success}
             />
          )}
 
@@ -642,7 +879,17 @@ const closeModalRoeLab= () => {
                reserva={selectedReserva}
                onClose={closeModalRoeReserva}
                onCancelReserva={handleCancelReserva}
-               
+               errorMensage = {ErrorMensageReserva}
+               success = {success}
+            />
+         )}
+
+
+
+{selectedIncidencia && (
+            <DetailIncidenciaModal 
+               incidencia={selectedIncidencia}
+               onClose={closeModalRoeIncidencia}
             />
          )}
        </div>
@@ -650,6 +897,8 @@ const closeModalRoeLab= () => {
 
    );
 }
+
+
 
 
 

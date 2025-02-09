@@ -4,28 +4,46 @@ const Turno = require("../models/Turno");
 const Laboratorio = require("../models/Laboratorio");
 const Profesor = require("../models/Profesor"); // Asegúrate de importar este modelo
 const Usuario = require('../models/User');
-
+const  Reserva =require('../models/Reserva');
+const {isReservaMismoDia,calcularDiferenciaHoras,verificarConflictoHorario } = require ("../schema/turno")
+const  Alumno  = require('../models/Alumno');
 const { Op } = require("sequelize");
-// Ruta para crear un turno
+
+
+const fs = require('fs');
+const path = require('path');
+const transporter = require('../config/email');
+
+const ExcelJS = require("exceljs");
+
+
 router.post('/', async (req, res) => {
   const { id_laboratorio, fecha, hora_inicio, hora_fin,id_user} = req.body;
   console.log("Datos recibidos en el backend:", { id_laboratorio, id_user, fecha, hora_inicio, hora_fin });
   const id_profesor = id_user
   try {
-    // Obtén el id_profesor desde la sesión del usuario
-    //const id_profesor = req.user?.id_profesor; // Supón que la autenticación añade `user` al objeto `req`
+    
     
     if (!id_profesor) {
       return res.status(401).json({ error: 'No autorizado. Profesor no identificado.' });
     }
     
 
-    // Validar que todos los campos estén presentes
+    
     if (!id_laboratorio || !fecha || !hora_inicio || !hora_fin) {
       return res.status(400).json({ error: 'Todos los campos son obligatorios.' });
     }
+   
+    const fechaActual = new Date();
+    const fechaTurno = new Date(fecha);
 
-    // Validar el lapso de 4 horas para reservas del mismo día
+    
+    fechaActual.setHours(0, 0, 0, 0);
+
+    if (fechaTurno < fechaActual) {
+      return res.status(400).json({ error: 'No se puede crear un turno en una fecha pasada.' });
+    }
+   
     if (isReservaMismoDia(fecha)) {
       const diferenciaHoras = calcularDiferenciaHoras(hora_inicio);
       if (diferenciaHoras < 4) {
@@ -33,12 +51,12 @@ router.post('/', async (req, res) => {
       }
     }
 
-    // Validar conflicto de horarios
+    
     if (await verificarConflictoHorario(id_laboratorio, fecha, hora_inicio, hora_fin)) {
       return res.status(400).json({ error: 'Conflicto de horario detectado en el laboratorio.' });
     }
 
-    // Crear el turno
+    
     const nuevoTurno = await Turno.create({
       id_laboratorio,
       id_profesor,
@@ -54,7 +72,7 @@ router.post('/', async (req, res) => {
   }
 });
 
-
+// obtener  todos los turnos cualquiera
 router.get("/", async (req, res) => {
     try {
       const turnos = await Turno.findAll({
@@ -70,7 +88,7 @@ router.get("/", async (req, res) => {
             include: {
               model: Usuario ,
               as: "usuario",
-              attributes: ["FirstName", "LastName"], // Campos necesarios del usuario
+              attributes: ["FirstName", "LastName"], 
             },
           },
         ],
@@ -83,9 +101,9 @@ router.get("/", async (req, res) => {
     }
   });
 
-
+// obtener  todos los turnos del profesor
   router.get("/:id_profesor", async (req, res) => {
-    const { id_profesor } = req.params; // Obtener la ID del profesor desde los parámetros
+    const { id_profesor } = req.params; 
   
     try {
       
@@ -123,122 +141,349 @@ router.get("/", async (req, res) => {
 
   
 
-
+// Borrar turno 
   router.delete("/:id_profesor/:id_turno", async (req, res) => {
-    const { id_profesor, id_turno } = req.params; // Obtener ID del profesor y del turno
-  
-    try {
-      // Verificar si el turno existe y pertenece al profesor
-      const turno = await Turno.findOne({
-        where: {
-          id_turno,
-          id_profesor, // Asegurar que el turno pertenece al profesor
-        },
-      });
-  
-      if (!turno) {
-        return res.status(404).json({ error: "Turno no encontrado o no pertenece al profesor." });
-      }
-  
-      // Eliminar el turno
-      await turno.destroy();
-      res.status(200).json({ message: "Turno eliminado exitosamente." });
-    } catch (error) {
-      console.error("Error al eliminar el turno:", error);
-      res.status(500).json({ error: "Error interno del servidor." });
-    }
-  });
-
-
-  router.put("/:id_profesor/:id_turno", async (req, res) => {
-    const { id_profesor, id_turno } = req.params; // Extraer parámetros
-    const { fecha, hora_inicio, hora_fin } = req.body; // Obtener datos del cuerpo de la solicitud
+    const { id_profesor, id_turno } = req.params; 
+    const emailTemplatePath = path.join(__dirname, '../templates/email_incidenciaCancelar_turno.html');
+    let emailTemplate = fs.readFileSync(emailTemplatePath, { encoding: 'utf-8' });
 
     try {
-        // Verificar si el turno existe y pertenece al profesor
+        // Buscar el turno con los detalles del profesor
         const turno = await Turno.findOne({
             where: {
                 id_turno,
-                id_profesor, // Asegurarse de que el turno pertenece al profesor
+                id_profesor,
             },
+            include: [
+                {
+                    model: Profesor,
+                    as: 'profesor',
+                    include: [
+                        {
+                            model: Usuario,
+                            as: 'usuario',
+                            attributes: ['FirstName', 'LastName', 'email'], // Datos del profesor
+                        },
+                    ],
+                },
+            ],
         });
 
         if (!turno) {
             return res.status(404).json({ error: "Turno no encontrado o no pertenece al profesor." });
         }
 
-        // Validar que los datos enviados sean opcionales y actualizar solo si están presentes
-        const updates = {};
-        if (fecha) updates.fecha = fecha;
-        if (hora_inicio) updates.hora_inicio = hora_inicio;
-        if (hora_fin) updates.hora_fin = hora_fin;
-
-        // Verificar conflicto de horarios (opcional según tu lógica)
-        if (updates.fecha || updates.hora_inicio || updates.hora_fin) {
-            const conflict = await Turno.findOne({
-                where: {
-                    id_profesor,
-                    id_turno: { [Op.ne]: id_turno }, // Excluir el turno actual
-                    fecha: updates.fecha || turno.fecha,
-                    [Op.or]: [
+        
+        const reservas = await Reserva.findAll({
+            where: { id_turno },
+            include: [
+                {
+                    model: Alumno,
+                    as: 'alumno',
+                    include: [
                         {
-                            hora_inicio: { [Op.lt]: updates.hora_fin || turno.hora_fin },
-                            hora_fin: { [Op.gt]: updates.hora_inicio || turno.hora_inicio },
+                            model: Usuario,
+                            as: 'usuario',
+                            attributes: ['FirstName', 'LastName', 'email'], // Datos del alumno
                         },
                     ],
                 },
-            });
+            ],
+        });
 
-            if (conflict) {
-                return res.status(400).json({ error: "Conflicto detectado con otro turno." });
+        
+        await turno.destroy();
+
+        
+        for (const reserva of reservas) {
+            const alumnoEmail = reserva?.alumno?.usuario?.email;
+            const alumnoNombre = `${reserva?.alumno?.usuario?.FirstName} ${reserva?.alumno?.usuario?.LastName}`;
+            const profesorNombre = `${turno.profesor?.usuario?.FirstName} ${turno.profesor?.usuario?.LastName}`;
+            const profesorEmail = turno.profesor?.usuario?.email;
+
+            if (alumnoEmail) {
+                const mensaje = emailTemplate
+                    .replace('${alumnoNombre}', alumnoNombre)
+                    .replace('${fecha}', turno.fecha)
+                    .replace('${hora_inicio}', turno.hora_inicio)
+                    .replace('${hora_fin}', turno.hora_fin)
+                    .replace('${incidencia}', 'Turno cancelado.')
+                    .replace('${email}', profesorEmail)
+                    .replace('${profesor}', profesorNombre);
+
+                const mailOptions = {
+                    from: process.env.EMAIL_USER,
+                    to: alumnoEmail,
+                    subject: 'Notificación de Cancelación de Turno',
+                    html: mensaje,
+                };
+
+                await transporter.sendMail(mailOptions);
+                
             }
         }
-
-        // Actualizar los datos del turno
-        await turno.update(updates);
-
-        return res.status(200).json(turno); // Retornar el turno actualizado
+        await Reserva.destroy({ where: { id_turno } });
+      res.status(200).json({ message: "Turno eliminado exitosamente." });
+      
     } catch (error) {
-        console.error("Error al actualizar el turno:", error);
-        res.status(500).json({ error: "Error interno del servidor." });
+      console.error("Error al eliminar el turno:", error);
+      res.status(500).json({ error: "Error interno del servidor." });
     }
+  });
+
+// actualizar turno 
+router.put("/:id_profesor/:id_turno", async (req, res) => {
+  const { id_profesor, id_turno } = req.params;
+  const { fecha, hora_inicio, hora_fin } = req.body;
+
+  try {
+      
+    const turno = await Turno.findOne({
+      where: {
+          id_turno,
+          id_profesor,
+      },
+      include: [
+          {
+              model: Profesor,
+              as: 'profesor',
+              include: [
+                  {
+                      model: Usuario,
+                      as: 'usuario',
+                      attributes: ['FirstName', 'LastName', 'email'], // Datos del profesor
+                  },
+              ],
+          },
+      ],
+  });
+
+      if (!turno) {
+          return res.status(404).json({ error: "Turno no encontrado o no pertenece al profesor." });
+      }
+
+      
+      const updates = {};
+      if (fecha) updates.fecha = fecha;
+      if (hora_inicio) updates.hora_inicio = hora_inicio;
+      if (hora_fin) updates.hora_fin = hora_fin;
+
+      
+      if (updates.fecha || updates.hora_inicio || updates.hora_fin) {
+          const conflict = await Turno.findOne({
+              where: {
+                  id_profesor,
+                  id_turno: { [Op.ne]: id_turno },
+                  fecha: updates.fecha || turno.fecha,
+                  [Op.or]: [
+                      {
+                          hora_inicio: { [Op.lt]: updates.hora_fin || turno.hora_fin },
+                          hora_fin: { [Op.gt]: updates.hora_inicio || turno.hora_inicio },
+                      },
+                  ],
+              },
+          });
+
+          if (conflict) {
+              return res.status(400).json({ error: "Conflicto detectado con otro turno." });
+          }
+      }
+
+      
+      await turno.update(updates);
+
+
+      
+
+    if (!turno) {
+        return res.status(404).json({ error: "Turno no encontrado o no pertenece al profesor." });
+    }
+
+
+      
+      const reservas = await Reserva.findAll({
+        where: { id_turno },
+        include: [
+          {
+            model: Alumno,
+            as: 'alumno',
+            include: [
+              {
+                model: Usuario,
+                as: 'usuario',
+                attributes: ['FirstName', 'LastName', 'email'],
+              },
+            ],
+          },
+        ],
+      });
+
+      // Leer la plantilla de correo
+      const emailTemplatePath = path.join(__dirname, '../templates/email_turno_actualizado.html');
+      const emailTemplate = fs.readFileSync(emailTemplatePath, 'utf8');
+
+      
+      for (const reserva of reservas) {
+          
+          const alumnoEmail = reserva?.alumno?.usuario?.email;
+            const alumnoNombre = `${reserva?.alumno?.usuario?.FirstName} ${reserva?.alumno?.usuario?.LastName}`;
+            const profesorNombre = `${turno.profesor?.usuario?.FirstName} ${turno.profesor?.usuario?.LastName}`;
+            const profesorEmail = turno.profesor?.usuario?.email;
+          const emailContent = emailTemplate
+              .replace(/{{nombre}}/g, alumnoNombre )
+              .replace(/{{fecha}}/g, updates.fecha )
+              .replace(/{{hora_inicio}}/g, updates.hora_inicio )
+              .replace(/{{hora_fin}}/g, updates.hora_fin ).
+              replace(/{{emailProfesor}}/g, profesorEmail ).
+              replace(/{{profesor}}/g, profesorNombre);
+          const mailOptions = {
+              from: process.env.EMAIL_USER, 
+              to: alumnoEmail, 
+              subject: 'Actualización de Turno', 
+              html: emailContent, 
+          };
+  
+          await transporter.sendMail(mailOptions);
+      }
+        console.log("actualización realizada exitosamente")
+      return res.status(200).json({message:"actualización realizada exitosamente" });
+  } catch (error) {
+      console.error("Error al actualizar el turno:", error);
+      res.status(500).json({ error: "Error interno del servidor." });
+  }
 });
 
 
-  // Verificar si la reserva es para el mismo día
-function isReservaMismoDia(fecha) {
-  const fechaActual = new Date().toISOString().split("T")[0];
-  return fecha === fechaActual;
-}
 
-// Calcular la diferencia de horas entre ahora y la hora de inicio solicitada
-function calcularDiferenciaHoras(horaInicio) {
-  const [horaInicioH, horaInicioM] = horaInicio.split(":").map(Number);
-  const ahora = new Date();
-  const horaActual = ahora.getHours();
-  const minutosActual = ahora.getMinutes();
-  const diferenciaMinutos = (horaInicioH * 60 + horaInicioM) - (horaActual * 60 + minutosActual);
-  return diferenciaMinutos / 60; // Convertir minutos a horas
-}
 
-// Verificar conflicto de horarios
-async function verificarConflictoHorario(id_laboratorio, fecha, hora_inicio, hora_fin) {
-  const turnos = await Turno.findAll({
-    where: {
-      id_laboratorio,
-      fecha,
-      [Op.or]: [
+router.get("/exportar-alumnos/:id_turno", async (req, res) => {
+  const { id_turno } = req.params;
+
+  try {
+    const reservas = await Reserva.findAll({
+      where: { id_turno },
+      attributes: ['id_reserva', 'estado'],
+      include: [
         {
-          hora_inicio: { [Op.lt]: hora_fin }, // Turno existente empieza antes de que termine el nuevo
-          hora_fin: { [Op.gt]: hora_inicio }, // Turno existente termina después de que empiece el nuevo
+          model: Alumno,
+          as: 'alumno',
+
+          include: [
+            {
+              model: Usuario,
+              as: 'usuario',
+              attributes: ['FirstName', 'LastName', 'email'],
+            },
+          ],
         },
       ],
-    },
-  });
+    });
+    console.log("reservaaaaaaaaaaaas:"+reservas)
+    if (!reservas.length) {
+      return res.status(404).json({ error: "No hay alumnos reservados para este turno." });
+    }
 
-  return turnos.length > 0; // Si hay conflictos, retorna true
-}
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet("Lista de Alumnos");
+
+
+    worksheet.columns = [
+      { header: "Nombre", key: "nombre", width: 25 },
+      { header: "Apellido", key: "apellido", width: 25 },
+      { header: "Email", key: "email", width: 30 },
+      { header: "Reserva:", key: "estado", width: 15 }
+    ];
+
+
+    worksheet.getRow(1).eachCell((cell) => {
+      cell.font = { bold: true, color: { argb: "FFFFFFFF" }, size: 12 };  // Negrita, texto blanco
+      cell.fill = {                                                      // Fondo azul
+        type: "pattern",
+        pattern: "solid",
+        fgColor: { argb: "007BFF" }
+      };
+      cell.alignment = { vertical: "middle", horizontal: "center" };      // Alineación
+      cell.border = {                                                    // Bordes
+        top: { style: "thin" },
+        left: { style: "thin" },
+        bottom: { style: "thin" },
+        right: { style: "thin" }
+      };
+    });
+
+
+    reservas.forEach((reserva) => {
+      const row = worksheet.addRow({
+        nombre: reserva?.alumno?.usuario?.FirstName || "N/A",
+        apellido: reserva?.alumno?.usuario?.LastName || "N/A",
+        email: reserva?.alumno?.usuario?.email || "N/A",
+        estado: reserva.estado || "N/A",
+
+
+        
+      });
+
+
+      const estadoCell = row.getCell('estado');
+
+      if (reserva?.estado === 'Aceptado') {
+          estadoCell.fill = {
+              type: 'pattern',
+              pattern: 'solid',
+              fgColor: { argb: 'C6EFCE' },  
+          };
+          estadoCell.font = { color: { argb: '006100' }, bold: true }; 
+      } else if (reserva?.estado === 'Cancelado') {
+          estadoCell.fill = {
+              type: 'pattern',
+              pattern: 'solid',
+              fgColor: { argb: 'FFC7CE' }, 
+          };
+          estadoCell.font = { color: { argb: '9C0006' }, bold: true }; 
+      }
+
+      row.eachCell((cell) => {
+        cell.border = {
+          top: { style: "thin" },
+          left: { style: "thin" },
+          bottom: { style: "thin" },
+          right: { style: "thin" }
+        };
+        cell.alignment = { vertical: "middle", horizontal: "left" };  // Alineación izquierda
+      });
+    });
+
+
+   
+
+
+
+    worksheet.eachRow({ includeEmpty: true }, function (row) {
+      row.height = 20;
+    });
+
+
+
+
+
+    res.setHeader(
+      "Content-Type",
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    );
+    res.setHeader("Content-Disposition", `attachment; filename=Lista_Alumnos_Turno_${id_turno}.xlsx`);
+
+    await workbook.xlsx.write(res);
+    res.end();
+  } catch (error) {
+    console.error("Error al generar el archivo Excel:", error);
+    res.status(500).json({ error: "Error interno del servidor" });
+  }
+});
 
 module.exports = router;
 
-module.exports = router;
+  
+
+
+
+

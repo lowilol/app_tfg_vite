@@ -1,7 +1,7 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/connection');
 
-const laboratorio = sequelize.define('Laboratorio', {
+const Laboratorio = sequelize.define('Laboratorio', {
     id_laboratorio: {
         type: DataTypes.INTEGER,
         primaryKey: true,
@@ -11,7 +11,7 @@ const laboratorio = sequelize.define('Laboratorio', {
         type: DataTypes.STRING,
         allowNull: false
     },
-    ubicación: {
+    ubicacion: {
         type: DataTypes.STRING,
         allowNull: false
     },
@@ -19,9 +19,15 @@ const laboratorio = sequelize.define('Laboratorio', {
         type: DataTypes.INTEGER,
         allowNull: false
     },
+    deshabilitado: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false,
+      },
     
 }, {
     tableName: 'laboratorio'
 });
 
-module.exports = laboratorio;
+
+
+module.exports = Laboratorio;

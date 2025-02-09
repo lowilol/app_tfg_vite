@@ -42,7 +42,7 @@ const Reserva = sequelize.define('Reserva', {
 });
 
 // Relacionar Reserva con Usuario y Turno
-Reserva.belongsTo(Alumno, { foreignKey: 'id_usuario', as: 'alumno' });
-Reserva.belongsTo(Turno, { foreignKey: 'id_turno', as: 'turno' });
-
+Reserva.belongsTo(Alumno, { foreignKey: 'id_alumno', as: 'alumno' , onUpdate: 'CASCADE' });
+Reserva.belongsTo(Turno, { foreignKey: 'id_turno', as: 'turno', onDelete: 'CASCADE', onUpdate: 'CASCADE', });
+Alumno.hasMany(Reserva, { foreignKey: 'id_alumno', as: 'reservas' });
 module.exports = Reserva;

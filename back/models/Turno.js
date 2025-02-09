@@ -1,6 +1,6 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/connection');
-const Laboratorio = require('./Laboratorio'); // Asegúrate de tener definido este modelo
+const Laboratorio = require('./Laboratorio'); 
 const Profesor = require('./Profesor');
 const Turno = sequelize.define('Turno', {
     id_turno: {
@@ -41,12 +41,22 @@ const Turno = sequelize.define('Turno', {
         allowNull: false,
         defaultValue: 0, // Valor por defecto
     },
+     estado: {
+            type: DataTypes.STRING,
+            allowNull: false,
+            defaultValue: "Activo" 
+        }
 }, {
     tableName: 'turno',
     timestamps: false
 });
 
-Turno.belongsTo(Laboratorio, { foreignKey: 'id_laboratorio', as: 'laboratorio' });
+Turno.belongsTo(Laboratorio, { foreignKey: "id_laboratorio", as: "laboratorio" });
+Laboratorio.hasMany(Turno, { 
+    foreignKey: "id_laboratorio",
+    as: "turno", 
+    onDelete: "CASCADE",
+});
 Turno.belongsTo(Profesor, { foreignKey: 'id_profesor', as: 'profesor' });
 
 module.exports = Turno;

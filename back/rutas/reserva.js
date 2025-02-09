@@ -3,7 +3,7 @@ const router = express.Router();
 const  Turno  =require('../models/Turno');
 const  Reserva =require('../models/Reserva');
 const  Laboratorio  =require('../models/Laboratorio');
-
+const { jsonResponse } = require("../lib/jsonResponse");
 
 router.post('/:id_turno/:id_alumno', async (req, res) => {
     const { id_turno, id_alumno } = req.params;
@@ -11,14 +11,14 @@ router.post('/:id_turno/:id_alumno', async (req, res) => {
     try {
         // Verificar si ya existe la reserva
         const existingReserva = await Reserva.findOne({ where: { id_turno, id_alumno } });
-
+        console.log("alumnoooo: " + id_alumno +" " + id_turno)
         if (existingReserva) {
             const mensajes = {
                 Aceptado: "La reserva ya existe.",
                 Cancelada: "Reserva cancelada, no puede volver a reservar."
             };
 
-            return res.status(400).json({ message: mensajes[existingReserva.estado] || 'Error inesperado.' });
+            return res.status(400).json({ error: mensajes[existingReserva.estado] || 'Error inesperado.' });
         }
 
 
@@ -26,16 +26,16 @@ router.post('/:id_turno/:id_alumno', async (req, res) => {
             
             const turno = await Turno.findByPk(id_turno);
             if (!turno) {
-                return res.status(404).json({ message: "Turno asociado no encontrado" });
+                return res.status(400).json({ error: "Turno asociado no encontrado" });
             }
 
             if (turno.capacidad_ocupada >= turno.capacidad) {
-                return res.status(400).json({ message: "El turno ya está completo." });
+                return res.status(400).json({ error: "El turno ya está completo." });
             }
 
             
-            const nuevaReserva = await Reserva.create(
-                { id_turno, id_alumno, estado: "Aceptado" },
+            await Reserva.create(
+                { id_turno: id_turno, id_alumno: id_alumno,  fecha_reserva: new Date(), estado: "Aceptado" },
                 
             );
 
@@ -44,8 +44,8 @@ router.post('/:id_turno/:id_alumno', async (req, res) => {
             await turno.save(); 
            
          
-            res.status(201).json(nuevaReserva);
-       
+            
+            return res.status(201).json({ message: 'ha sido exitoso al crear la reserva.' });
     } catch (error) {
         console.error('Error al crear la reserva:', error);
         res.status(500).json({ message: 'Error al crear la reserva.' });
@@ -56,30 +56,51 @@ router.put("/cancelar/:id_reserva", async (req, res) => {
     const { id_reserva } = req.params;
   
     try {
-      // Buscar la reserva
+      
       const reserva = await Reserva.findByPk(id_reserva);
       if (!reserva) {
-        return res.status(404).json({ message: "Reserva no encontrada" });
+        return res.status(404).json({ error: "Reserva no encontrada" });
       }
   
-      // Buscar el turno asociado a la reserva
+      if(reserva.estado === "Cancelada"){
+       
+
+        return res.status(409).json(
+            jsonResponse(409, {
+              error: "Reserva ya ha sido cancelada",
+            })
+          );
+      }
       const turno = await Turno.findByPk(reserva.id_turno);
       if (!turno) {
-        return res.status(404).json({ message: "Turno asociado no encontrado" });
+        return res.status(404).json({ error: "Turno asociado no encontrado" });
       }
+
+
+
+    const fechaHoraTurno = new Date(`${turno.fecha}T${turno.hora_inicio}`);
+    const ahora = new Date();
+    const diferenciaHoras = (fechaHoraTurno - ahora) / (1000 * 60 * 60); // Diferencia en horas
+
+    if (diferenciaHoras < 1) {
+      return res.status(400).json({ error: 'No se puede cancelar la reserva con menos de 1 hora de anticipación.' });
+    }
+
+
+
   
-      // Actualizar el estado de la reserva
+     
       reserva.estado = "Cancelada";
       await reserva.save();
   
-      // Restar 1 de la capacidad ocupada del turno
+     
       turno.capacidad_ocupada = Math.max(0, turno.capacidad_ocupada - 1); // Asegura que no sea menor a 0
       await turno.save();
   
       res.json({ message: "Reserva cancelada exitosamente", reserva, turno });
     } catch (error) {
       console.error("Error al cancelar la reserva:", error);
-      res.status(500).json({ message: "Error interno del servidor" });
+      res.status(500).json({ error: "Error interno del servidor" });
     }
   });
   

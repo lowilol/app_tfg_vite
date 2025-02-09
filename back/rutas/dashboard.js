@@ -1,37 +1,46 @@
 const express = require("express");
 const router = express.Router();
 const { verifyAccessToken  } = require("../auth/verify");
+const  Profesor  = require('../models/Profesor');
+const  Alumno  = require('../models/Alumno');
 
-router.get("/", async function (req, res, next) {
+const { emailExists, getUserByEmail} = require("../schema/user");
+router.post("/", verifyAccessToken,async function (req, res, next) {
     // Obtén el token de acceso desde el encabezado de la solicitud
   const token = req.headers['authorization']?.split(' ')[1]; // "Bearer <token>"
+  const email = req.body.email
+  console.log("Token recibido:", token);
+ 
+  const userEmailExists = await emailExists(email);
 
-  console.log(token)
+    if (!userEmailExists ) {
+      return res.status(401).json(jsonResponse(401, { error: "El email no existe" }));
+    }
+
+  const user = await getUserByEmail(email);
 
   if (!token) {
     return res.status(401).json({ error: 'No autorizado, falta token' });
   }
 
-  try {
-    // Verifica y decodifica el token (asegúrate de implementar esta función)
-    const decodedToken = await verifyAccessToken(token);
-    console.log("Token decodificado:", decodedToken);
-
-    // Verifica el rol del usuario y responde en consecuencia
-    const userRole = decodedToken.rol;
-    if (userRole === "Alumno") {
-      return res.status(200).json({ response: 'Hola, soy Alumno' });
-    } else if (userRole === "Docente") {
-      return res.status(200).json({ response: 'Hola, soy Docente' });
-    } else {
-      return res.status(400).json({ error: 'Rol no reconocido' });
-    }
-  } catch (error) {
-    console.error('Error al verificar el token:', error);
-    return res.status(500).json({ error: 'Error interno del servidor' });
-  }
+  
       
+  let missingData = null;
+  const alumno = await Alumno.findOne({ where: { id_alumno: user.id_user } });
+  const profesor = await Profesor.findOne({ where: { id_profesor: user.id_user } });
+  let SpecificDateUser = null
+  if (user.rol === "Alumno") {
+    if (!alumno?.matricula) missingData = "matricula";
+    else{SpecificDateUser=alumno?.matricula}
+  } else if (user.rol === "Profesor") {   
+    if (!profesor?.departamento) missingData = "departamento";
+    else{SpecificDateUser=profesor?.matricula}
+  }
 
+
+  const {password:_ , ... publicUser} = user 
+
+  res.json({  missingData ,publicUser: { ...publicUser, specificData: SpecificDateUser } });
       
   
 });

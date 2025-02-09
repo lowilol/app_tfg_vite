@@ -3,7 +3,7 @@ const {updatePassword} = require("../schema/user");
 const router = express.Router();
 const { verifyResetPasswordToken  } = require("../auth/verify");
 
-router.post("/:token", async function (req, res, next) {
+router.post("/:token", async function (req, res) {
   const { token } = req.params; 
   const { newPassword } = req.body;
   

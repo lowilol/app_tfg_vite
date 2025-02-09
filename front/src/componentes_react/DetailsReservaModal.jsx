@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import "../ModalStyle.css";
 import  {normalizarFecha}  from "./TimeFormat/FuntionTimeFormat";
 import AlertResponse  from "./alert"
-const DetailsReservaModal = ({ reserva, onClose, onCancelReserva,errorMensage }) => {
+const DetailsReservaModal = ({ reserva, onClose, onCancelReserva,errorMensage,success }) => {
   const [isCancelling, setIsCancelling] = useState(false);
 
   if (!reserva) return null;
@@ -13,6 +13,8 @@ const DetailsReservaModal = ({ reserva, onClose, onCancelReserva,errorMensage })
     const [year, month, day] = date.split("-");
     return `${day}/${month}/${year}`;
   };
+
+  if (!reserva || !reserva.turno) return null;
 
   const handleCancelReserva = () => {
     if (window.confirm("¿Estás seguro de que deseas cancelar esta reserva?")) {
@@ -38,6 +40,7 @@ const DetailsReservaModal = ({ reserva, onClose, onCancelReserva,errorMensage })
         </button>
         <h3>Detalles de la Reserva</h3>
          <AlertResponse mensage={errorMensage}  color={"failure"}/>
+         <AlertResponse mensage={success} color={"success"}/>
         <div className="turno-details">
           <div className="detail-row">
             <span className="detail-label">Laboratorio:</span>

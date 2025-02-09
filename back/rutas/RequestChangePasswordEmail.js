@@ -16,7 +16,7 @@ router.post('/', async (req, res) => {
   
  
   if ( !email) {
-    //return next(new Error("username and password are required"));
+    
     return res.status(409).json(
       jsonResponse(409, {
         error: "se requiere relenar todos lo parametros ",
@@ -34,13 +34,12 @@ router.post('/', async (req, res) => {
   }
   
   
-  // Genera el token de reseteo con expiración
+  
   const resetToken = await  createResetPasswordToken(email);
   console.log(resetToken)
-  /*const decodedToken =  verifyResetPasswordToken(resetToken); // Función que verifica el token
-    console.log("Token decodificado:", decodedToken);*/
-  // Guardar el token en la base de datos o directamente generar el enlace
-  const resetLink = `http://localhost:5173/changerPassword/${resetToken}`;
+
+  
+  const resetLink = `http://localhost:5000/changerPassword/${resetToken}`;
   
   emailTemplate = emailTemplate.replace('${resetLink}', resetLink);
    

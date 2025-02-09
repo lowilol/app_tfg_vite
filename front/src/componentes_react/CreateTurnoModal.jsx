@@ -19,7 +19,8 @@ const CreateTurnoModal = ({ showModalCreateTurno, onClose }) => {
         .then((res) => res.json())
         .then((data) => {
           if (data && Array.isArray(data)) {
-            setLaboratorios(data);
+            const laboratoriosHabilitados = data.filter(lab => !lab.deshabilitado);
+          setLaboratorios(laboratoriosHabilitados);
           } else {
             setError("Error al cargar laboratorios");
           }
@@ -83,7 +84,7 @@ const CreateTurnoModal = ({ showModalCreateTurno, onClose }) => {
         setSuccess(Data.message)
         
       } else {
-        
+        setSuccess("")
         setError(Data.error || "Error al crear el turno");
       }
     } catch (err) {
@@ -142,7 +143,7 @@ const CreateTurnoModal = ({ showModalCreateTurno, onClose }) => {
                 required
               >
                 <option value="">Selecciona una hora</option>
-                {generateHourOptions(9, 21)} {/* Genera opciones de 9 a 21 */}
+                {generateHourOptions(9, 21)} 
               </select>
             </div>
 

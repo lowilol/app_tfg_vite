@@ -32,14 +32,14 @@ export default function login() {
         headers: { "Content-Type": "application/json" },
          
         body: JSON.stringify({ email, password }),
-        credentials: "same-origin", //credentials: "include",
+        credentials: "same-origin", 
       });
       const json = await response.json();
       if (response.ok && json.accessToken ) {
         
 
-       
            auth.saveUser(json);
+          
              // Guardar datos del usuario en sessionStorage o localStorage
            sessionStorage.setItem('user',JSON.stringify(json.publicUser) );
            sessionStorage.setItem('accessToken', json.accessToken);

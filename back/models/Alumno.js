@@ -2,6 +2,7 @@ const { DataTypes } = require('sequelize');
 const sequelize = require('../config/connection');
 const Usuario = require('./User');
 
+//const Reserva = require('./Reserva');
 const Alumno = sequelize.define('Alumno', {
     id_alumno: {
         type: DataTypes.INTEGER,
@@ -18,9 +19,11 @@ const Alumno = sequelize.define('Alumno', {
 }, {
     tableName: 'alumno',
     timestamps: false
-});
+})
 
 // Relación: Alumno hereda de Usuario
-Alumno.belongsTo(Usuario, { foreignKey: 'id_alumno', as: 'alumno' });
+Usuario.hasOne(Alumno, { foreignKey: 'id_user', as: 'alumno' });
+Alumno.belongsTo(Usuario, { foreignKey: 'id_user', as: 'usuario' });
 
+//Reserva.hasMany( Alumno, { foreignKey: 'id_alumno', as: 'reservas' });
 module.exports = Alumno;

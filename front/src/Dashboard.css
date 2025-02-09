@@ -380,3 +380,38 @@ html, body {
 }
 
 
+/*incidencia css*/
+
+.context-menu {
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  font-family: Arial, sans-serif;
+  font-size: 14px;
+}
+
+
+
+
+
+.btn-profile {
+  background-color: #ffffff;       
+  color: #007bff;                
+  border: 2px solid #007bff;       
+  padding: 10px 20px;             
+  border-radius: 25px;             
+  font-size: 16px;                
+  display: flex;                   
+  align-items: center;
+  gap: 8px;                      
+  cursor: pointer;                 
+  transition: background-color 0.3s, color 0.3s; 
+}
+
+.btn-profile:hover {
+  background-color: #007bff;       
+  color: #ffffff;                  
+  transform: scale(1.05);          
+}
+
+.btn-profile i {
+  font-size: 20px;                
+}
