@@ -1,11 +1,11 @@
 import '../styles/output.css'
-import { Button } from 'flowbite-react';
+
 import { Link } from 'react-router-dom';
 import { useState} from "react";
 import { useAuth} from "../auth/AuthProvider";
 import { Navigate } from "react-router-dom";
 import AlertResponse  from "../componentes_react/alert"
-
+import HoverButton from '../componentes_react/boton'
 export default function login() {
 
 
@@ -32,18 +32,19 @@ export default function login() {
         headers: { "Content-Type": "application/json" },
          
         body: JSON.stringify({ email, password }),
-        credentials: "same-origin", 
+        credentials: 'include', 
       });
       const json = await response.json();
       if (response.ok && json.accessToken ) {
         
 
-           auth.saveUser(json);
+           auth.saveUser(json.publicUser);
           
-             // Guardar datos del usuario en sessionStorage o localStorage
-           sessionStorage.setItem('user',JSON.stringify(json.publicUser) );
-           sessionStorage.setItem('accessToken', json.accessToken);
+           /*  // Guardar datos del usuario en sessionStorage o localStorage
+           
+           sessionStorage.setItem('accessToken', json.accessToken);*/
            console.log(json.publicUser)
+           sessionStorage.setItem('user',JSON.stringify(json.publicUser) );
            setRedirect({
             pathname: '/dashboard',
             state: { userRole: json.publicUser.Rol },
@@ -113,7 +114,8 @@ export default function login() {
               </div>
               <Link to="/requestPassword" className="text-sm font-medium text-blue-600 hover:underline dark:text-blue-500">¿Olvidó la contaseña?</Link>
             </div>
-            <Button outline={true} type="submit" className="">Login</Button>
+            <HoverButton onClick={(e) => handleSubmit(e)}
+                 label="login" ></HoverButton> 
             <p className="text-sm font-light text-gray-500 dark:text-gray-400">
               ¿Aún no tienes una cuenta ya creada? <Link to="/signup" className="font-medium text-primary-600 hover:underline dark:text-primary-500">Registrarse</Link>
             </p>

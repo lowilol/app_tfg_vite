@@ -28,7 +28,9 @@ export default function Dashboard(  ) {
    const [rol, setRol] = useState("");
    const [id_user,setId_user] = useState("");
    const [error, setError] = useState("");
-   const { isAuthenticated, logout } = useAuth(); 
+   const { isAuthenticated, logout,checkAuth } = useAuth();
+   
+
    const[success,setSuccess ] = useState("");
    const[usuario,setUsuario]= useState(null)
 
@@ -64,13 +66,19 @@ export default function Dashboard(  ) {
    
 
    useEffect(() => {
+      console.log(isAuthenticated)
       if (!isAuthenticated) {
+         
          navigate('/');
          return;
       }
-      
+      checkAuth();
+      const interval = setInterval(checkAuth, 480000); 
+      console.log("escaneando...")
+    
       const userDataRaw = sessionStorage.getItem('user');
       const accessToken = sessionStorage.getItem('accessToken');
+      
       if (userDataRaw) {
          try {
             const userData = JSON.parse(userDataRaw);
@@ -82,17 +90,15 @@ export default function Dashboard(  ) {
             setName(name_)
             setEmail(email_)
             setRol(rol_)
-            if (accessToken && email_) {
-               fetchDashboardMessage(accessToken, email_); 
-            }
-
-            
+           
+            fetchDashboardMessage(accessToken, email_); 
+         
             console.log(name+" "+ id_user)
             console.log(name_+" "+ id_user)
             console.log(email_)
             console.log(accessToken)
             console.log(userData)
-           
+            return () => clearInterval(interval);
          } catch (error) {
             console.error("Error al parsear user data:", error);
             setError("Error al recuperar los datos del usuario");
@@ -546,7 +552,8 @@ const handleUpdateLaboratorio = async (id_laboratorio, nuevaCapacidad) => {
                'Content-Type': 'application/json',
                'Authorization': `Bearer ${accessToken}`,
             },
-            body: JSON.stringify({email})
+            body: JSON.stringify({email}),
+            credentials: 'include'
          });
 
          const data = await response.json();

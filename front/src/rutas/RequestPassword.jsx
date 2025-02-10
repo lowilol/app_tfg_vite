@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { Button  } from 'flowbite-react';
+
 import AlertResponse  from "../componentes_react/alert"
 import '../styles/output.css'
 
-
+import HoverButton from '../componentes_react/boton'
 
 
 
@@ -63,7 +63,9 @@ export default function RequestPasswordReset() {
                   </div>
                  
         
-                  <Button outline={true} type="submit" className="">Enviar</Button>
+                  <HoverButton onClick={() => handleSubmit()}
+                 label="enviar" ></HoverButton> 
+                
                 
               </form>
           </div>

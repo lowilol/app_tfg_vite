@@ -6,10 +6,11 @@ const  Alumno  = require('../models/Alumno');
 
 const { emailExists, getUserByEmail} = require("../schema/user");
 router.post("/", verifyAccessToken,async function (req, res, next) {
-    // Obtén el token de acceso desde el encabezado de la solicitud
-  const token = req.headers['authorization']?.split(' ')[1]; // "Bearer <token>"
+    
+  const token = req.headers['authorization']?.split(' ')[1]; 
   const email = req.body.email
-  console.log("Token recibido:", token);
+
+ 
  
   const userEmailExists = await emailExists(email);
 

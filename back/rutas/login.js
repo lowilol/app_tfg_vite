@@ -13,7 +13,7 @@ router.post("/", async function (req, res, next) {
 
   
   try {
-
+ 
     if (  !password || !email) {
       //return next(new Error("username and password are required"));
       return res.status(409).json(
@@ -42,27 +42,25 @@ router.post("/", async function (req, res, next) {
     // Si el email existe y la contraseña es correcta, generamos los tokens
     const accessToken = await  createAccessToken(email);
     console.log({ accessToken});
-/* 
 
-    const oneHour = 120 * 60 * 1000; // Tiempo en milisegundos para 1 hora
-    const expirationDate = new Date(Date.now() + oneHour); 
+
     
     
-   console.log(expirationDate)
+   
      res.cookie('access_token', accessToken, {
-      httpOnly: true,  // No accesible desde JavaScript en el navegado
-      sameSite: 'lax',  // Previene ataques CSRF 
+      httpOnly: false,  
+      sameSite: 'lax',  
       secure:  true,        //process.env.NODE_ENV === 'production',   Solo por HTTPS en producción
       priority:"Medium",
-      maxAge: oneHour,
-      expires: expirationDate,
+      maxAge: 3600000,
+      
       
        
-    });*/
+    });
     const user = await getUserByEmail(email);
-    req.session.user = getUserInfo(user);
+    req.session.user =  accessToken;
 
-    const usuario = req.session.user;
+    const session = req.session.user;
     //res.redirect('/dashboard');
 
     console.log("----------------------------------");
@@ -70,7 +68,7 @@ router.post("/", async function (req, res, next) {
     console.log("----------------------------------");
     console.log(getUserInfo(user));
     console.log("----------------------------------");
-    console.log(usuario);
+    console.log(session);
 
     const {password:_ , ... publicUser} = user
 

@@ -1,9 +1,9 @@
 import '../styles/output.css' 
-import { Button,Modal, Label, TextInput } from 'flowbite-react';
+import { Modal, Label, TextInput } from 'flowbite-react';
 import { useState } from "react";
 import { useAuth } from "../auth/AuthProvider";
 import { Navigate, useNavigate } from "react-router-dom";
-
+import HoverButton from '../componentes_react/boton'
 import AlertResponse  from "../componentes_react/alert"
 export default function signup() {
   const [name, setName] = useState("");
@@ -165,7 +165,8 @@ export default function signup() {
                   </div>
 
                   <div className=" content-center">
-                  <Button outline={true}  type="submit" className="">Sign in</Button>
+                  <HoverButton onClick={(e) => handleSubmit(e)}
+                 label="sing in" ></HoverButton> 
                   </div>
                   
                   
@@ -192,9 +193,9 @@ export default function signup() {
                 required
               />
             </div>
-            <Button type="submit" outline={true}>
-              Verificar
-            </Button>
+            <HoverButton onClick={(e) => handleVerificationSubmit(e)}
+                 label="Verificar" ></HoverButton>
+          
           </form>
         </Modal.Body>
       </Modal>

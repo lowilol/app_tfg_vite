@@ -1,34 +1,38 @@
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
 const transporter = require('../config/email');  
-const sequelize = require('../config/connection');
+
 const fs = require('fs');
 const path = require('path');
 
 const crypto = require('crypto');
-const VerificationCode = require('../models/VerificationCode');
 const redis = require("../config/redis");
 
 async function verifyAccessToken(req, res, next) {
   try {
-    const authHeader = req.headers['authorization'];
-    const token = authHeader && authHeader.split(' ')[1];
+    if (!req || !req.cookies) {
+      return res.status(400).json({ error: "Solicitud malformada" });
+    }
 
-    if (!req || !req.headers) {
-      return res.status(400).json({ error: 'Solicitud malformada' });
+    const token = req.cookies.access_token; 
+    console.log("Verificando token:", token);
+
+    if (!token) {
+      return res.status(401).json({ error: "Token no proporcionado" });
     }
 
     
-    if (!authHeader) {
-      return res.status(401).json({ error: 'Token no proporcionado' });
-    }
-
-    const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
-    req.user = decoded;  
-    next();  
+    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
+      if (err) {
+        console.error("Error al verificar el token:", err);
+        return res.status(403).json({ error: "Token inválido o expirado" });
+      }
+      req.user = decoded; 
+      next();
+    });
   } catch (error) {
-    console.error('Error al verificar el token:', error);
-    return res.status(403).json({ error: 'Token inválido o expirado' });
+    console.error("Error en la autenticación:", error);
+    return res.status(500).json({ error: "Error interno del servidor" });
   }
 }
 

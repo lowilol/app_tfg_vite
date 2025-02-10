@@ -1,8 +1,8 @@
 import '../styles/output.css' 
 import React, { useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { Button,Alert  } from 'flowbite-react';
 
+import HoverButton from '../componentes_react/boton'
 import AlertResponse  from "../componentes_react/alert"
 
 export default function changerPassword() {
@@ -38,7 +38,7 @@ export default function changerPassword() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ newPassword }),
-        credentials: 'same-origin',
+        credentials: 'include',
       });
 
       const json = await response.json();
@@ -87,9 +87,8 @@ export default function changerPassword() {
                       <input type="password" name="ConfirmPassword" id="ConfirmPassword" onChange={(e) => setConfirmPassword(e.target.value)} value={confirmPassword}   className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required=""/>
                   </div>
                  
-                     
-                  
-                  <Button outline={true} type="submit" className="">Enviar</Button>
+                  <HoverButton onClick={() => handleSubmit()}
+                 label="enviar" ></HoverButton> 
                 
               </form>
           </div>

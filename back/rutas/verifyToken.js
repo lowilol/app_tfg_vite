@@ -1,17 +1,13 @@
 const express = require("express");
 const jwt = require("jsonwebtoken");
-
+const { verifyAccessToken  } = require("../auth/verify");
 const router = express.Router();
 
 // Middleware para verificar el token
-router.post("/", (req, res) => {
-  const authHeader = req.headers['authorization'];
+router.post("/",(req, res) => {
+  
 
-  if (!authHeader) {
-    return res.status(401).json({ error: "Token de acceso requerido" });
-  }
-
-  const token = authHeader.split(' ')[1]; // "Bearer <token>"
+  const token = req.cookies.access_token // "Bearer <token>"
 
   if (!token) {
     return res.status(401).json({ error: "Token no proporcionado" });

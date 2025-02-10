@@ -3,6 +3,7 @@ import React, { useContext, createContext, useState, useEffect } from "react";
 import { useNavigate} from "react-router-dom";
 import "react-toastify/dist/ReactToastify.css";  
 import { toast } from "react-toastify";
+import { ClipLoader } from "react-spinners";
 const AuthContext = createContext({
   isAuthenticated: false,
   getAccessToken: () =>({}),
@@ -24,54 +25,52 @@ export function AuthProvider({ children }) {
     const cookieString = document.cookie
     .split("; ")
     .find((row) => row.startsWith("access_token="));
+   
   return cookieString ? cookieString.split("=")[1] : null;
   }
 
   function saveUser(userData) {
-
-    localStorage.setItem('user', JSON.stringify(userData));
+    document.cookie = `user=${JSON.stringify(userData)}; path=/;`;
     setUser(userData);
     setIsAuthenticated(true);
   }
 
-  function ObtainAccessToken(accessToken) {
+ 
    
   
-  setAccessToken(accessToken);;
-  }
+  
 
   function getUser() {
     return user;
   }
 
-  const logout = () =>{
-    
-    sessionStorage.removeItem('user');
-    sessionStorage.removeItem('accessToken');
-    localStorage.removeItem("user");
+  function logout() {
+    document.cookie = "access_token=; path=/; max-age=0"; 
+    document.cookie = "user=; path=/; max-age=0"; 
     setUser(null);
     setIsAuthenticated(false);
-    navigate('/'); 
- 
-   }
+    navigate("/");
+  }
 
   async function checkAuth() {
     try {
-      const storedUser = localStorage.getItem("user");
-      const storedAccessToken = sessionStorage.getItem("accessToken");
-
-      if (storedAccessToken) {
+     // setIsLoading(true); 
+      const token = getAccessToken()
+      if (token) {
         
         const response = await fetch("http://localhost:5000/api/verifyToken", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${storedAccessToken}`,
+           
+            
           },
+          credentials: 'include'
         });
 
         if (response.ok) {
-          setUser(JSON.parse(storedUser));
+          const userData =await response.json();
+          setUser(userData.user);
           setIsAuthenticated(true);
         } else {
           toast.error("⚠️ Tu sesión ha expirado. Inicia sesión nuevamente."); 
@@ -93,24 +92,25 @@ export function AuthProvider({ children }) {
   
   useEffect(() => {
     checkAuth();
-    const interval = setInterval(checkAuth, 480000); 
-    console.log("escaneando...")
-    return () => clearInterval(interval);
   }, []);
-
   return (
     <AuthContext.Provider
       value={{
         isAuthenticated,
         getAccessToken,
-        ObtainAccessToken,
         saveUser,
         getUser,
         logout,
         checkAuth
       }}
     >
-      {isloading ? <div>Loading...</div> : children}
+     {isloading ? (
+        <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }}>
+          <ClipLoader color="#3498db" size={50} />
+        </div>
+      ) : (
+        children
+      )}
     </AuthContext.Provider>
   );
 }
