@@ -1,4 +1,4 @@
-import '../output.css' 
+import '../styles/output.css' 
 import React, { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { Button,Alert  } from 'flowbite-react';

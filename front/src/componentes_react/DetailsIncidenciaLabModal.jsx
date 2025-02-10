@@ -1,5 +1,5 @@
 import React from "react";
-import "../ModalStyle.css";
+import "../styles/ModalStyle.css";
 import { normalizarFecha } from "./TimeFormat/FuntionTimeFormat";
 
 const DetailIncidenciaModal = ({ incidencia, onClose }) => {

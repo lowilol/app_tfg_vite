@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import '../../Dashboard.css';
+import '../../styles/Dashboard.css';
 
 const IncidenciaLabTable = ({ incidencias, handleRowClickIncidencia }) => {
   const [selectedLaboratorio, setSelectedLaboratorio] = useState('');

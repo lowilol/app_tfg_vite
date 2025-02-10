@@ -5,7 +5,7 @@ import { useAuth } from '../auth/AuthProvider'
 import HoverButton from '../componentes_react/boton'
 import CreateTurnoModal from "../componentes_react/CreateTurnoModal"
 import CrearLaboratorioModal from '../componentes_react/CreateLaboratorioModal'
-import '../Dashboard.css'; 
+import '../styles/Dashboard.css'; 
 import DetailsTurnoModal from "../componentes_react/DetailsTurnoModal"
 import DetailsLabModel from "../componentes_react/DetailsLabModel"
 import DetailsReservaModal from "../componentes_react/DetailsReservaModal"
@@ -18,7 +18,9 @@ import TurnoTable from "../componentes_react/tabla/TurnoTable"
 import IncidenciasLabTable from "../componentes_react/tabla/IncidenciasLabTable"
 
 import Perfil from "./profile"
-import { ToastContainer,toast } from "react-toastify"; 
+import { ToastContainer } from "react-toastify";
+
+
 export default function Dashboard(  ) {
   
    const [name, setName] = useState("");
@@ -32,7 +34,7 @@ export default function Dashboard(  ) {
 
    const [showModalCreateTurno, setShowModalCreateTurno] = useState(false);
    const [showModalCreateLab, setShowModalCreateLab] = useState(false);
-   //const [showModal, setShowModal] = useState(false);
+  
    const [content, setContent] = useState("");
 
    const [turnosDisponibles, setTurnosDisponibles] = useState([]);

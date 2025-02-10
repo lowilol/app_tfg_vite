@@ -1,4 +1,4 @@
-import '../output.css'
+import '../styles/output.css'
 import { Button } from 'flowbite-react';
 import { Link } from 'react-router-dom';
 import { useState} from "react";

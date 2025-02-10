@@ -1,4 +1,4 @@
-import '../output.css' 
+import '../styles/output.css' 
 import { Button,Modal, Label, TextInput } from 'flowbite-react';
 import { useState } from "react";
 import { useAuth } from "../auth/AuthProvider";

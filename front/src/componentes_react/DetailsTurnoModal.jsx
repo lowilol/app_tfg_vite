@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import "../ModalStyle.css";
+import "../styles/ModalStyle.css";
 import { formatDate, formatHour,normalizarFecha} from "./TimeFormat/FuntionTimeFormat";
 import  {generateHourOptions}  from "./TimeFormat/FuntionTimeFormat";
 import AlertResponse  from "./alert"

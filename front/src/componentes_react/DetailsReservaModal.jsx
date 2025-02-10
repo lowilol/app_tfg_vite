@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import "../ModalStyle.css";
+import "../styles/ModalStyle.css";
 import  {normalizarFecha}  from "./TimeFormat/FuntionTimeFormat";
 import AlertResponse  from "./alert"
 const DetailsReservaModal = ({ reserva, onClose, onCancelReserva,errorMensage,success }) => {

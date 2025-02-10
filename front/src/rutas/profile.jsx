@@ -1,4 +1,4 @@
-import '../profile.css'; 
+import '../styles/profile.css'; 
 
 import { useState} from "react";
 

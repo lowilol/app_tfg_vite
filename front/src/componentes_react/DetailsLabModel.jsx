@@ -1,5 +1,5 @@
 import React, { useState , useEffect } from "react";
-import "../ModalStyle.css";
+import "../styles/ModalStyle.css";
 import AlertResponse  from "./alert"
 import DetailIncidenciaModal from "../componentes_react/DetailsIncidenciaLabModal"
 import { normalizarFecha} from "./TimeFormat/FuntionTimeFormat";

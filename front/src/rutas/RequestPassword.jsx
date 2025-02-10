@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Button  } from 'flowbite-react';
 import AlertResponse  from "../componentes_react/alert"
-import '../output.css'
+import '../styles/output.css'
 
 
 

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import '../../Dashboard.css';
+import '../../styles/Dashboard.css';
 
 import { formatDate, formatHour, normalizarFecha } from "../TimeFormat/FuntionTimeFormat";
 
