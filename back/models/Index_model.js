@@ -37,52 +37,6 @@ Turno.belongsToMany(IncidenciaLTurno, {
 });
 
 
-/*
-
-
-
-
-IncidenciaLab.belongsToMany(Laboratorio, {
-    foreignKey: 'id_incidencia',
-    otherKey: 'id_laboratorio',
-    as: 'laboratorio'
-});
-
-Laboratorio.belongsToMany(IncidenciaLab, {
-    foreignKey: 'id_laboratorio',
-    otherKey: 'id_incidencia',
-    as: 'incidencia'
-});
-
-
-
-    
-Laboratorio.hasMany(Turno, { 
-    foreignKey: 'id_laboratorio',
-     as: 'turno',
-     onDelete: 'CASCADE',
-     });
-Turno.belongsTo(Laboratorio, { foreignKey: 'id_laboratorio', as: 'laboratorio' });
-
-
-Turno.hasMany(Reserva, { 
-    foreignKey: 'id_turno',
-     as: 'reserva' 
-    });
-
-Turno.hasMany(Reserva, { foreignKey: 'id_turno', as: 'reservas' });
-
-
-Reserva.belongsTo(Alumno, { foreignKey: 'id_alumno', as: 'alumno' });
-
-Usuario.hasMany(Reserva, { 
-    foreignKey: 'id_user',
-     as: 'reserva'
-  
-  
-    });
-*/
-
 
 
     sequelize.sync({ force: false }) 

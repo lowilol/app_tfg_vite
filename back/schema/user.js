@@ -53,11 +53,11 @@ const crearUsuario = async(lastname, password, name, email,rol)=>{
 
     
     
-    // Sincronizar el modelo con la base de datos
-    await sequelize.sync(); // Esto crea la tabla si no existe
+   
+    await sequelize.sync(); 
     
     const HashedPass =  await  hashPassword(password);
-    // Insertar un usuario de prueba
+   
    
    console.log(rol)
     newUser = await User.create({
@@ -96,29 +96,29 @@ const crearUsuario = async(lastname, password, name, email,rol)=>{
   }
 
 }
-// Función para encriptar la contraseña
+
 const hashPassword = async (password) => {
-  const saltRounds = 10;  // Número de rondas de sal, 10 es un valor recomendado
-      const hash = await bcrypt.hash(password, saltRounds);  // Genera el hash
+  const saltRounds = 10;  
+      const hash = await bcrypt.hash(password, saltRounds);  
       return hash;
 };
 
-// Función para verificar si el nombre de usuario existe en la base de datos
+
 const emailExists = async (email) => {
   console.log("--"+User+"--");
   const user = await getUserByEmail (email);
 
-  return !!user; // Devuelve true si se encuentra el usuario, false si no.
+  return !!user; 
 };
 
 
-// Función para verificar si el nombre de usuario existe en la base de datos
+
 const UserExists = async (FirstName, LastName) => {
   console.log("--"+User+"--");
   const userexist = await getUser(FirstName,LastName) ;
 
 
-  return !!userexist; // Devuelve true si se encuentra el usuario, false si no.
+  return !!userexist;
 };
 
 const getUserByEmail = async(email)=>{
@@ -132,18 +132,18 @@ const getUser = async(FirstName, LastName)=>{
 }
 
 
-// Función para verificar si la contraseña es correcta
+
 const isCorrectPassword = async (email, password) => {
   const user =await getUserByEmail (email);
   if (!user) {
-    return false; // Usuario no encontrado
+    return false; 
   }
 
   const hash = user.password;
   return bcrypt.compare(password, hash);
 };
 
-// Función para crear un token de acceso
+
 const createAccessToken = async (email) => {
   const user = await getUserByEmail(email);
   const userInfo = getUserInfo(user);
@@ -169,7 +169,7 @@ async function updatePassword(userId, newPassword) {
       { where: { id: userId } }     
     );
 
-    // Verifica si la actualización fue exitosa
+    
     if (updatedUser[0] === 0) { 
       throw new Error('No se pudo actualizar la contraseña. Usuario no encontrado.');
     }

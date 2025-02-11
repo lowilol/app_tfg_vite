@@ -15,7 +15,7 @@ const CrearLaboratorioModal = ({ showModalCreateLab, onClose }) => {
     setError("");
     setSuccessMessage("");
 
-    // Validación básica
+   
     if (!nombre || !ubicacion || !capacidad) {
       setError("Todos los campos son obligatorios.");
       return;

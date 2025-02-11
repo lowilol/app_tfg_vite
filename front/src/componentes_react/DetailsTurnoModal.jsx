@@ -34,7 +34,7 @@ const closeModalRoeIncidencia= () => {
          method: 'GET',
          headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${sessionStorage.getItem('accessToken')}`,
+            
          },
       });
        const ResIncidencias = await response.json();
@@ -63,7 +63,7 @@ React.useEffect(() => {
             method: "DELETE",
             headers: {
               "Content-Type": "application/json",
-              Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
+             
             },
           });
     

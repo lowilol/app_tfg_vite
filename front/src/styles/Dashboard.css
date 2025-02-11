@@ -1,9 +1,9 @@
 html, body {
   margin: 0;
   padding: 0;
-  height: 100%; /* Asegura que body y html ocupen el 100% del viewport */
+  height: 100%; 
   width: 100%;
-  overflow: hidden; /* Oculta el scroll */
+  overflow: hidden; 
 }
 
 
@@ -11,13 +11,13 @@ html, body {
 .dashboard-container {
   display: flex;
   flex-direction: column;
-  height: 100vh; /* Altura fija para toda la vista */
-  width: 100vw;  /* Ancho fijo para toda la vista */
+  height: 100vh; 
+  width: 100vw;  
 }
 
 
 .dashboard-nav {
-  height: 10%; /* Por ejemplo, 10% para el header */
+  height: 10%; 
   background-color: #00468b;
   color: white;
   display: flex;
@@ -26,7 +26,7 @@ html, body {
   padding: 0 20px;
 }
 .dashboard-nav-option {
-  height: 7%; /* Por ejemplo, 10% para el header */
+  height: 7%;
   width: 19vw;
   background-color: #1f82c0;
   color: white;
@@ -71,13 +71,13 @@ html, body {
   flex: 1; 
   padding: 1rem;
   background-color: #ffffff;
-  overflow: auto; /* Si hay contenido extra, se muestra solo aquí */
+  overflow: auto; 
 }
 
 
 
 .dashboard-footer {
-  height: 5%; /* Por ejemplo, 5% para el footer */
+  height: 5%;
   background-color: #00468b;
   color: white;
   text-align: center;
@@ -95,12 +95,12 @@ html, body {
 .dashboard-aside {
   display: flex;
   flex-direction: column;
-  justify-content: space-between; /* Espacia elementos superior e inferior */
-  height: 100%; /* Asegura que el aside ocupe todo el alto */
+  justify-content: space-between;
+  height: 100%; 
 }
 
 .aside-header {
-  background-color: #00468b; /* Fondo del texto "Opciones" */
+  background-color: #00468b; 
   color: white;
   padding: 1rem;
   text-align: center;
@@ -113,7 +113,7 @@ html, body {
 
 .aside-nav {
   flex: 1;
-  background-color: #e6e6e6; /* Fondo del nav */
+  background-color: #e6e6e6; 
   padding: 1rem;
 }
 
@@ -130,7 +130,7 @@ html, body {
 
 
 .dashboard-aside {
-  width: 20%; /* Por ejemplo, 20% del ancho total */
+  width: 20%; 
   background-color: #f5f5f5;
   padding: 1rem;
 }

@@ -1,8 +1,8 @@
 const cron = require('node-cron');
 const { Op } = require('sequelize');
-const Turno = require('../models/Turno'); // Asegúrate de que la ruta sea correcta
+const Turno = require('../models/Turno'); 
 
-cron.schedule('* * * * *', async () => {  // Se ejecuta cada hora en punto
+cron.schedule('* * * * *', async () => { 
   try {
     const ahora = new Date();
     console.log(ahora)

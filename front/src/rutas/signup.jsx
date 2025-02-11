@@ -56,7 +56,7 @@ export default function signup() {
       const json = (await response.json());
       setErrorResponse("");
       if (response.ok) {
-        setShowVerificationModal(true);  // Muestra el modal si el código fue enviado
+        setShowVerificationModal(true); 
       } else {
         setErrorResponse(json.body.error);
       }

@@ -30,7 +30,7 @@ const Perfil = ({ usuario, onUpdate }) => {
           <div>
             <label>Matrícula:</label>
             {matricula ? (
-              <p>{matricula}</p> // Mostrar solo el texto si ya existe
+              <p>{matricula}</p> 
             ) : (
               <input
                 value={matricula}

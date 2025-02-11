@@ -6,7 +6,7 @@ async function consultarLaboratoriosConIncidencias() {
             {
                 model: Incidencia,
                 as: 'incidencias',
-                through: { attributes: ['fecha_asociacion'] } // Incluye la fecha
+                through: { attributes: ['fecha_asociacion'] } 
             }
         ]
     });

@@ -14,7 +14,7 @@ export default function login() {
   const [password, setPassword] = useState("");
   const [errorResponse, setErrorResponse] = useState("");
 
-  const [redirect, setRedirect] = useState(null); // Para manejar la redirección
+  const [redirect, setRedirect] = useState(null); 
  
   
 
@@ -39,10 +39,6 @@ export default function login() {
         
 
            auth.saveUser(json.publicUser);
-          
-           /*  // Guardar datos del usuario en sessionStorage o localStorage
-           
-           sessionStorage.setItem('accessToken', json.accessToken);*/
            console.log(json.publicUser)
            sessionStorage.setItem('user',JSON.stringify(json.publicUser) );
            setRedirect({

@@ -41,7 +41,7 @@ const DetailsLabModel = ({ laboratorio,id_user, onClose, onDelete, onUpdate,erro
             method: "POST",
             headers: {
               "Content-Type": "application/json",
-              Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
+             
             },
             body: JSON.stringify({ id_user }),
           });

@@ -92,12 +92,7 @@ export default function Dashboard(  ) {
             setRol(rol_)
            
             fetchDashboardMessage(accessToken, email_); 
-         
-            console.log(name+" "+ id_user)
-            console.log(name_+" "+ id_user)
-            console.log(email_)
-            console.log(accessToken)
-            console.log(userData)
+      
             return () => clearInterval(interval);
          } catch (error) {
             console.error("Error al parsear user data:", error);
@@ -113,7 +108,7 @@ export default function Dashboard(  ) {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${sessionStorage.getItem('accessToken')}`, // Token de autenticación
+            
           },
         });
     
@@ -122,7 +117,7 @@ export default function Dashboard(  ) {
         if (response.ok) {
          setSuccess("")
           console.log("Turnos del profesor obtenidos:", data);
-          setMisTurnos(data); // Suponiendo que usas un estado llamado setTurnos para almacenar los turnos
+          setMisTurnos(data); 
         } else {
           console.error("Error al obtener turnos del profesor:", data.message || "Error no especificado.");
         }
@@ -201,14 +196,14 @@ export default function Dashboard(  ) {
          method: 'GET',
          headers: {
             'Content-Type': 'application/json',
-            Authorization: `Bearer ${sessionStorage.getItem('accessToken')}`,
+            
          },
       });
 
       const data = await response.json();
       if (response.ok) {
          
-         setReservas(data); // Guardar el historial en el estado
+         setReservas(data); 
         
       } else {
          if (response.status === 404) {
@@ -232,14 +227,13 @@ const fetchReservaTurno = async (id_usuario, id_turno) => {
    const id_alumno = id_usuario;
    try {
       const response = await fetch(`http://localhost:5000/api/reserva/${id_turno}/${id_alumno}`, {
-         method: 'POST', // Cambiado a POST para crear una nueva reserva
+         method: 'POST',
          headers: {
             'Content-Type': 'application/json',
-            Authorization: `Bearer ${sessionStorage.getItem('accessToken')}`,
+           
          },
       });
-      //const data = await response.json();
-      //console.log(data)
+      
       if (!response.ok) {
          const data = await response.json()
          if (response.status === 400) {
@@ -342,11 +336,14 @@ const handleOptionClickShowReserva = (option) => {
             Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
          },
       });
+      const data = await response.json();
       if (response.ok) {
          setTurnosDisponibles(turnosDisponibles.filter((t) => t.id_turno !== id_turno));
          setMisTurnos(MisTurnos.filter((t) => t.id_turno !== id_turno));
          console.log("Turno eliminado correctamente");
          //closeModalRoeTurno();
+         console.log(data)
+         setSuccess(data.message)
          handleOptionClickMisTurno("Mis Turnos")
       } else {
          console.error("Error al eliminar el turno");
@@ -401,7 +398,7 @@ const handleUpdateTurno = async (id_turno, newFecha, newHoraInicio , newHoraFin)
          );
          
          
-         //handleOptionClickMisTurno("Mis Turnos")
+        
       } else {
          setMensageActTurno("Error al actualizar el turno")
       }
