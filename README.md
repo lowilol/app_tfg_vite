@@ -1,4 +1,13 @@
-# Sistema de Gestión de Laboratorios ETSISI - UPM
+
+
+## Tabla de Contenidos
+- [Sistema de Gestión de Laboratorios ETSISI - UPM](#)
+- [Descripción del Proyecto](#)
+- [Desplegar Servidor Frontend](#desplegar-servidor-frontend)
+- [Desplegar Servidor Backend](#desplegar-servidor-backend)
+
+
+## Sistema de Gestión de Laboratorios ETSISI - UPM
 
 Este repositorio contiene el código fuente completo del Trabajo de Fin de Grado (TFG) basado en la digitalización de la gestión de laboratorios y turnos en la Escuela Técnica Superior de Ingenieros de Sistemas Informáticos (ETSISI) de la Universidad Politécnica de Madrid (UPM).
 
@@ -9,24 +18,47 @@ La aplicación permite a alumnos, profesores y personal PAS gestionar digitalmen
 
 
 
-## Desplegar servidor front 
-# Accede al directorio
-cd  ./TFG_GESTIONGRUPOSLAB/front
 
- Instala dependencias
-npm install
+## Desplegar Servidor Frontend
 
- Ejecuta en desarrollo
-npm run dev
+Sigue estos pasos para desplegar el servidor frontend en tu entorno local:
 
+1. **Accede al directorio:**
 
+    ```bash
+    cd ./TFG_GESTIONGRUPOSLAB/front
+    ```
 
-## Desplegar servidor back 
- Accede al directorio
-cd  ./TFG_GESTIONGRUPOSLAB/back 
+2. **Instala las dependencias:**
 
- Instala dependencias
-npm install
+    ```bash
+    npm install
+    ```
 
- Ejecuta en desarrollo
-nodemon app.js
+3. **Ejecuta en modo desarrollo:**
+
+    ```bash
+    npm run dev
+    ```
+
+## Desplegar Servidor Backend
+
+Sigue estos pasos para desplegar el servidor backend en tu entorno local:
+
+1. **Accede al directorio:**
+
+    ```bash
+    cd ./TFG_GESTIONGRUPOSLAB/back
+    ```
+
+2. **Instala las dependencias:**
+
+    ```bash
+    npm install
+    ```
+
+3. **Ejecuta en modo desarrollo:**
+
+    ```bash
+    nodemon app.js
+    ```
