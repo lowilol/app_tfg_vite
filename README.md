@@ -13,20 +13,20 @@ La aplicación permite a alumnos, profesores y personal PAS gestionar digitalmen
 # Accede al directorio
 cd  ./TFG_GESTIONGRUPOSLAB/front
 
-# Instala dependencias
+ Instala dependencias
 npm install
 
-# Ejecuta en desarrollo
+ Ejecuta en desarrollo
 npm run dev
 
 
 
 ## Desplegar servidor back 
-# Accede al directorio
+ Accede al directorio
 cd  ./TFG_GESTIONGRUPOSLAB/back 
 
-# Instala dependencias
+ Instala dependencias
 npm install
 
-# Ejecuta en desarrollo
+ Ejecuta en desarrollo
 nodemon app.js
