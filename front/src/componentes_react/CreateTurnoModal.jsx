@@ -15,7 +15,7 @@ const CreateTurnoModal = ({ showModalCreateTurno, onClose }) => {
   // Obtener laboratorios disponibles desde el backend
   useEffect(() => {
     if (showModalCreateTurno) {
-      fetch("http://localhost:4000/api/laboratorio")
+      fetch("/api/laboratorio")
         .then((res) => res.json())
         .then((data) => {
           if (data && Array.isArray(data)) {
@@ -65,7 +65,7 @@ const CreateTurnoModal = ({ showModalCreateTurno, onClose }) => {
     }
 
     try {
-      const response = await fetch("http://localhost:4000/api/turno", {
+      const response = await fetch("/api/turno", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

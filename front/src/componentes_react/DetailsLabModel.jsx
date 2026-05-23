@@ -37,7 +37,7 @@ const DetailsLabModel = ({ laboratorio,id_user, onClose, onDelete, onUpdate,erro
       
       if (window.confirm(confirmMessage)) {
         try {
-          const response = await fetch(`http://localhost:4000/api/laboratorio/${action}/${laboratorio.id_laboratorio}`, {
+          const response = await fetch(`/api/laboratorio/${action}/${laboratorio.id_laboratorio}`, {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
@@ -80,7 +80,7 @@ const DetailsLabModel = ({ laboratorio,id_user, onClose, onDelete, onUpdate,erro
    const handleDeleteIncidencia = async (id_incidencia) => {
       if (window.confirm("¿Estás seguro de que deseas eliminar esta incidencia?")) {
         try {
-          const response = await fetch(`http://localhost:4000/api/incidencia/laboratorio/${id_incidencia}`, {
+          const response = await fetch(`/api/incidencia/laboratorio/${id_incidencia}`, {
             method: "DELETE",
             headers: {
               "Content-Type": "application/json",

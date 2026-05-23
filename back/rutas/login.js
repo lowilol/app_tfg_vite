@@ -50,7 +50,7 @@ router.post("/", async function (req, res, next) {
      res.cookie('access_token', accessToken, {
       httpOnly: false,  
       sameSite: 'lax',  
-      secure:  true,        
+      secure:  false,        
       priority:"Medium",
       maxAge: 3600000,
       

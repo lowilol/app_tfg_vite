@@ -56,7 +56,7 @@ export function AuthProvider({ children }) {
       const token = getAccessToken()
       if (token) {
         
-        const response = await fetch("http://localhost:4000/api/verifyToken", {
+        const response = await fetch("/api/verifyToken", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

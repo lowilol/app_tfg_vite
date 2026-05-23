@@ -2,7 +2,7 @@ const Redis = require("ioredis");
 
 require('dotenv').config();
 const redis = new Redis({
-  host: process.env.DB_HOST, 
+  host: process.env.REDIS_HOST, 
   port: 6379,        
   db: 0,             
 });

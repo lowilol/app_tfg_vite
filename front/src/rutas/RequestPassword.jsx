@@ -15,7 +15,7 @@ export default function RequestPasswordReset() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch('http://localhost:4000/api/requestPasswordReset', {
+      const response = await fetch('/api/requestPasswordReset', {
         method: 'POST',
         headers: { "Content-Type": "application/json"},
         body: JSON.stringify({ email }),

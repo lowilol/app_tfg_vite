@@ -30,7 +30,7 @@ const closeModalRoeIncidencia= () => {
   const handleIncidenisTurno =  async (turno) => {
    
    try {
-       const response = await fetch(`http://localhost:4000/api/incidencia/turno/${turno.id_turno}`, {
+       const response = await fetch(`/api/incidencia/turno/${turno.id_turno}`, {
          method: 'GET',
          headers: {
             'Content-Type': 'application/json',
@@ -59,7 +59,7 @@ React.useEffect(() => {
    const handleDeleteIncidencia = async (id_incidencia) => {
       if (window.confirm("¿Estás seguro de que deseas eliminar esta incidencia?")) {
         try {
-          const response = await fetch(`http://localhost:4000/api/incidencia/turno/${id_incidencia}`, {
+          const response = await fetch(`/api/incidencia/turno/${id_incidencia}`, {
             method: "DELETE",
             headers: {
               "Content-Type": "application/json",
@@ -132,7 +132,7 @@ React.useEffect(() => {
 
     const handleDownloadExcel = async (id_turno) => {
       try {
-        const response = await fetch(`http://localhost:4000/api/turno/exportar-alumnos/${id_turno}`, {
+        const response = await fetch(`/api/turno/exportar-alumnos/${id_turno}`, {
           method: "GET",
           headers: {
             Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,

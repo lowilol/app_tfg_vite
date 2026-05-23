@@ -460,7 +460,7 @@ router.get("/exportar-alumnos/:id_turno", async (req, res) => {
     worksheet.eachRow({ includeEmpty: true }, function (row) {
       row.height = 20;
     });
-
+  });
 
 
 
