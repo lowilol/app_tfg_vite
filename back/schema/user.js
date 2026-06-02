@@ -15,7 +15,7 @@ const Rol_ = (dominio) =>{
     rol ="Alumno";
     return rol
   } else if(dominio === "@upm.es") {
-    rol ="Docente";  
+    rol ="Profesor";  
     return rol
   }
   else{ 
