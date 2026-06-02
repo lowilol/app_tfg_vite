@@ -209,8 +209,14 @@
     justify-content: space-between;
     padding: 10px 0;
     border-bottom: 1px solid #f0f0f0;
+     overflow: hidden;
 }
-
+.detail-value.description {
+    word-break: break-word;
+    overflow-wrap: break-word;
+    white-space: pre-wrap;
+    max-width: 100%;
+}
 .detail-label {
     font-weight: bold;
     color: #333;
