@@ -28,7 +28,7 @@ const DetailIncidenciaModal = ({ incidencia, onClose }) => {
                </div>
                <div className="detail-row">
                   <span className="detail-label">Descripción:</span>
-                  <span className="detail-value">{incidencia.descripcion_incidencia}</span>
+                  <span className="detail-value descripcion">{incidencia.descripcion_incidencia}</span>
                </div>
             </div>
 
