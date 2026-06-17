@@ -1,0 +1,82 @@
+[
+    {
+        "Name": "app_tfg_vite_tfg_network",
+        "Id": "a01f8808264085d0648e2d77ee506c637f2b2353700415c05cc8197e4cfc4bbe",
+        "Created": "2026-06-02T03:20:52.209085492+02:00",
+        "Scope": "local",
+        "Driver": "bridge",
+        "EnableIPv4": true,
+        "EnableIPv6": false,
+        "IPAM": {
+            "Driver": "default",
+            "Options": null,
+            "Config": [
+                {
+                    "Subnet": "172.18.0.0/16",
+                    "Gateway": "172.18.0.1"
+                }
+            ]
+        },
+        "Internal": false,
+        "Attachable": false,
+        "Ingress": false,
+        "ConfigFrom": {
+            "Network": ""
+        },
+        "ConfigOnly": false,
+        "Options": {},
+        "Labels": {
+            "com.docker.compose.config-hash": "0013372c9d99d49d87acbd253b30a0aa0ea2fa5e5a1d2fc5c640e332cdb5a64e",
+            "com.docker.compose.network": "tfg_network",
+            "com.docker.compose.project": "app_tfg_vite",
+            "com.docker.compose.version": "5.1.3"
+        },
+        "Containers": {
+            "0f66ec5a5feeb371ce42162473c9cf6d9b79de55d39d070e2b5c46ce06916f1e": {
+                "Name": "tfg_mysql",
+                "EndpointID": "4194d7239b2e637f968d0efc0076d04ee723320d4c0d25b8b29c2ec0e538d6fa",
+                "MacAddress": "ba:d2:7f:bd:ff:e4",
+                "IPv4Address": "172.18.0.2/16",
+                "IPv6Address": ""
+            },
+            "17ba5d47589dac471d3f6306a190737e0f5606de86ffe58244a6362bbefe31dc": {
+                "Name": "tfg_frontend",
+                "EndpointID": "f53cd20bbf65024336e7edf6d2e51452f0087394b48216e8c3dbb8de7a762b4a",
+                "MacAddress": "b6:98:b5:23:a2:d5",
+                "IPv4Address": "172.18.0.5/16",
+                "IPv6Address": ""
+            },
+            "2ee0c1d608e84bdf7e5e035d63fa68c3801aad49b0a3a7567fffd5def58c6386": {
+                "Name": "tfg_backend",
+                "EndpointID": "064d7e332d61520e974e02e396f3a8d868df2991490118f9258569fbc50e465c",
+                "MacAddress": "72:12:fb:a7:e6:12",
+                "IPv4Address": "172.18.0.4/16",
+                "IPv6Address": ""
+            },
+            "751a9048b0d672a8bd0790bcf711e282597ca0e095b80a7bbb811300edd5e223": {
+                "Name": "tfg_nginx",
+                "EndpointID": "d449d38a2871782d5c64962a8854b686fce7b6caa754b2f8bbaafbe38c19e90f",
+                "MacAddress": "6e:50:1c:1d:38:ef",
+                "IPv4Address": "172.18.0.6/16",
+                "IPv6Address": ""
+            },
+            "ec967460dfcdf92fa590ed0a6e4d5a2980cc02cae4d5171b8bbf80546025b5ae": {
+                "Name": "tfg_redis",
+                "EndpointID": "7f475174341571d6160e6e697eeaa4b9b4dec380132264ca6adb1c54b89a3d37",
+                "MacAddress": "26:e4:64:9c:a5:52",
+                "IPv4Address": "172.18.0.3/16",
+                "IPv6Address": ""
+            }
+        },
+        "Status": {
+            "IPAM": {
+                "Subnets": {
+                    "172.18.0.0/16": {
+                        "IPsInUse": 8,
+                        "DynamicIPsAvailable": 65528
+                    }
+                }
+            }
+        }
+    }
+]

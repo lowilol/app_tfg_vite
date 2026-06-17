@@ -14,4 +14,7 @@ export default defineConfig({
       // clientPort: 3000, // Asegúrate de que coincida con el puerto del servidor
     },
   },
+  preview: {
+    allowedHosts: ['upmlab.es', '.upmlab.es'],
+  }
 });

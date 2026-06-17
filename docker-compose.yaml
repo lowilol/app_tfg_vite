@@ -64,15 +64,36 @@ services:
       - backend
     networks:
       - tfg_network
-
+  dns:
+    image: 4km3/dnsmasq:2.90-r3
+    container_name: tfg_dns
+    restart: always
+    command:
+      - --address=/upmlab.es/${HOST_LAN_IP}
+      - --no-resolv
+      - --server=8.8.8.8
+      - --server=1.1.1.1
+      - --log-queries
+      - --listen-address=0.0.0.0
+      - --bind-interfaces
+      - --conf-file=/dev/null
+    ports:
+      - "53:53/udp"
+      - "53:53/tcp"
+    cap_add:
+      - NET_ADMIN
+    networks:
+      - tfg_network
   nginx:
     image: nginx:alpine
     container_name: tfg_nginx
     restart: always
     ports:
       - "80:80"
+      - "443:443"
     volumes:
       - ./nginx.conf:/etc/nginx/conf.d/default.conf
+      - ./certs:/etc/nginx/certs:ro
     depends_on:
       - frontend
       - backend
